@@ -485,6 +485,47 @@
       position: relative;
     }
 
+    .chart-tools-panel {
+      width: 48px;
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 12px;
+      background: var(--card-bg);
+      border-bottom-left-radius: 12px;
+    }
+
+    .tool-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tool-btn:hover {
+      background: var(--btn-bg);
+      color: var(--text-main);
+    }
+
+    .tool-btn.active {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--blue);
+    }
+
+    .tool-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
     /* Floating HUD for OHLC and Indicator values on crosshair move */
     .chart-hud {
       position: absolute;
@@ -822,8 +863,38 @@
         </div>
       </div>
 
-      <div style="position:relative;">
-        <div id="chartHud" class="chart-hud">
+      <div style="display: flex; border-top: 1px solid var(--card-border);">
+        <!-- Tools Panel -->
+        <div class="chart-tools-panel">
+          <button class="tool-btn active" title="Crosshair" onclick="setDrawingMode('cursor')" id="btn-tool-cursor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+          </button>
+          <button class="tool-btn" title="Trend Line" onclick="setDrawingMode('trendline')" id="btn-tool-trendline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="2" y2="22"></line><circle cx="2" cy="22" r="2"></circle><circle cx="22" cy="2" r="2"></circle></svg>
+          </button>
+          <button class="tool-btn" title="Horizontal Line" onclick="setDrawingMode('hline')" id="btn-tool-hline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line></svg>
+          </button>
+          <button class="tool-btn" title="Measure (%)" onclick="setDrawingMode('measure')" id="btn-tool-measure">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+          </button>
+          <button class="tool-btn" title="Fibonacci Retracement (Not Supported)" onclick="alert('Fibonacci belum didukung. Gunakan Trend Line atau Horizontal Line.')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <button class="tool-btn" title="Brush (Not Supported)" onclick="alert('Brush belum didukung. Gunakan Trend Line atau Horizontal Line.')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+          </button>
+          <button class="tool-btn" title="Text (Not Supported)" onclick="alert('Text belum didukung. Gunakan Trend Line atau Horizontal Line.')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+          </button>
+          <div style="flex:1;"></div>
+          <button class="tool-btn" title="Trash (Clear All Drawings)" onclick="clearDrawings()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
+
+        <div style="flex: 1; position:relative; min-width: 0;">
+          <div id="chartHud" class="chart-hud">
           <span>Date: <span id="hudDate" class="hud-val">-</span></span>
           <span>O: <span id="hudO" class="hud-val">-</span></span>
           <span>H: <span id="hudH" class="hud-val">-</span></span>
@@ -841,6 +912,7 @@
           <div class="spinner"></div>
           <div style="font-size:13px; font-weight:600; color:var(--text-main);">Calculating Angloritma Quant Indicators...</div>
         </div>
+      </div>
       </div>
     </div>
 
@@ -1003,9 +1075,196 @@
       }
     });
     
+    // Drawing state
+    let currentDrawingMode = 'cursor'; // 'cursor', 'trendline', 'hline'
+    let isDrawing = false;
+    let customDrawings = []; // array of custom drawn series/priceLines
+    let drawingButtons = {};
+    let partialTrendLine = null;
+
+    function setDrawingMode(mode) {
+      currentDrawingMode = mode;
+      isDrawing = false; // Reset if partially drawing
+      
+      // Update button UI
+      if (!drawingButtons['cursor']) {
+        drawingButtons['cursor'] = document.getElementById('btn-tool-cursor');
+        drawingButtons['trendline'] = document.getElementById('btn-tool-trendline');
+        drawingButtons['hline'] = document.getElementById('btn-tool-hline');
+        drawingButtons['measure'] = document.getElementById('btn-tool-measure');
+      }
+      
+      for (let key in drawingButtons) {
+        if (drawingButtons[key]) {
+          if (key === mode) {
+            drawingButtons[key].classList.add('active');
+          } else {
+            drawingButtons[key].classList.remove('active');
+          }
+        }
+      }
+    }
+
+    function clearDrawings() {
+      if (!candleSeries) return;
+      customDrawings.forEach(d => {
+        if (d.type === 'trendline' || d.type === 'measure') {
+          try { chart.removeSeries(d.series); } catch(e){}
+        } else if (d.type === 'hline') {
+          try { candleSeries.removePriceLine(d.line); } catch(e){}
+        }
+      });
+      customDrawings = [];
+    }
+
+    function setupDrawingListeners() {
+      if (!chart) return;
+      
+      chart.subscribeClick((param) => {
+        if (currentDrawingMode === 'cursor') return;
+        if (!param.point || !param.time) return;
+        
+        // Get price at clicked y coordinate
+        const price = candleSeries.coordinateToPrice(param.point.y);
+        if (price === null) return;
+        
+        if (currentDrawingMode === 'hline') {
+          const hline = candleSeries.createPriceLine({
+            price: price,
+            color: '#f97316',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Solid,
+            axisLabelVisible: true,
+          });
+          customDrawings.push({ type: 'hline', line: hline });
+          
+          // Revert to cursor mode after drawing
+          setDrawingMode('cursor');
+        } 
+        else if (currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') {
+          if (!isDrawing) {
+            // Start trendline or measure
+            isDrawing = true;
+            
+            let series;
+            if (currentDrawingMode === 'measure') {
+              series = chart.addBaselineSeries({
+                baseValue: { type: 'price', price: price },
+                topLineColor: 'rgba(16, 185, 129, 1)',
+                topFillColor1: 'rgba(16, 185, 129, 0.3)',
+                topFillColor2: 'rgba(16, 185, 129, 0.05)',
+                bottomLineColor: 'rgba(239, 68, 68, 1)',
+                bottomFillColor1: 'rgba(239, 68, 68, 0.05)',
+                bottomFillColor2: 'rgba(239, 68, 68, 0.3)',
+                lineWidth: 1,
+                lineStyle: LightweightCharts.LineStyle.Dashed,
+                crosshairMarkerVisible: false,
+                lastValueVisible: false,
+                priceLineVisible: false,
+                title: '0.00%',
+              });
+            } else {
+              series = chart.addLineSeries({
+                color: '#0ea5e9', // blue for trendline
+                lineWidth: 2,
+                lastValueVisible: false,
+                priceLineVisible: false,
+                crosshairMarkerVisible: false,
+                lineStyle: LightweightCharts.LineStyle.Solid,
+              });
+            }
+
+            partialTrendLine = {
+              type: currentDrawingMode,
+              time1: param.time,
+              price1: price,
+              series: series
+            };
+            
+            // Add single point so far
+            partialTrendLine.series.setData([
+              { time: param.time, value: price }
+            ]);
+          } else {
+            // Finish trendline/measure
+            isDrawing = false;
+            
+            let p1, p2;
+            if (partialTrendLine.type === 'measure') {
+              // For a rectangle, both points use the current price, 
+              // baseline fills down to price1
+              p1 = { time: partialTrendLine.time1, value: price };
+              p2 = { time: param.time, value: price };
+            } else {
+              p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
+              p2 = { time: param.time, value: price };
+            }
+            
+            if (p1.time > p2.time) {
+              let tmp = p1;
+              p1 = p2;
+              p2 = tmp;
+            } else if (p1.time === p2.time) {
+              // Can't have two points with same time
+              setDrawingMode('cursor');
+              chart.removeSeries(partialTrendLine.series);
+              partialTrendLine = null;
+              return;
+            }
+            
+            partialTrendLine.series.setData([p1, p2]);
+            
+            if (partialTrendLine.type === 'measure') {
+               const pct = ((price - partialTrendLine.price1) / partialTrendLine.price1) * 100;
+               // Count bars (approximate index difference based on time, but since time is unix timestamp, it's rough)
+               partialTrendLine.series.applyOptions({ title: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' });
+            }
+            
+            customDrawings.push({ type: partialTrendLine.type, series: partialTrendLine.series });
+            partialTrendLine = null;
+            
+            setDrawingMode('cursor');
+          }
+        }
+      });
+      
+      chart.subscribeCrosshairMove((param) => {
+        if ((currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') && isDrawing && partialTrendLine) {
+          if (!param.point || !param.time) return;
+          const price = candleSeries.coordinateToPrice(param.point.y);
+          if (price === null) return;
+          
+          let p1, p2;
+          if (partialTrendLine.type === 'measure') {
+            p1 = { time: partialTrendLine.time1, value: price };
+            p2 = { time: param.time, value: price };
+          } else {
+            p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
+            p2 = { time: param.time, value: price };
+          }
+          
+          if (p1.time !== p2.time) {
+             if (p1.time > p2.time) {
+               partialTrendLine.series.setData([p2, p1]);
+             } else {
+               partialTrendLine.series.setData([p1, p2]);
+             }
+          }
+          
+          if (partialTrendLine.type === 'measure') {
+             const pct = ((price - partialTrendLine.price1) / partialTrendLine.price1) * 100;
+             partialTrendLine.series.applyOptions({ title: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' });
+          }
+        }
+      });
+    }
+
     function initChart() {
       const container = document.getElementById('chartArea');
       container.innerHTML = '';
+      customDrawings = []; // Reset on new chart
+      isDrawing = false;
+      partialTrendLine = null;
 
       chart = LightweightCharts.createChart(container, {
         width: container.clientWidth,
@@ -1138,6 +1397,9 @@
         const d = new Date(param.time * 1000);
         document.getElementById('hudDate').textContent = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       });
+
+      // Call drawing listeners setup after chart initialization
+      setupDrawingListeners();
     }
 
     function updateHudDefault() {
@@ -1259,6 +1521,13 @@
     }
 
     function renderChart(data) {
+      // Clear old price lines references before recreating chart
+      tpPriceLine = null;
+      slPriceLine = null;
+      entryPriceLine = null;
+      
+      initChart();
+
       // 1. Candles
       const candles = data.candles || [];
       candleSeries.setData(candles);
