@@ -485,6 +485,29 @@
       position: relative;
     }
 
+    /* Fullscreen overrides */
+    .chart-container-card:fullscreen {
+      border-radius: 0 !important;
+      padding: 12px 16px !important;
+      margin: 0 !important;
+      border: none !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      max-height: none !important;
+      background: var(--card-bg) !important;
+    }
+    
+    .chart-container-card:fullscreen > div:last-child {
+      flex: 1;
+      min-height: 0;
+    }
+    
+    .chart-container-card:fullscreen #chartArea {
+      height: 100% !important;
+      flex: 1;
+    }
+
     .chart-tools-panel {
       width: 48px;
       border-right: 1px solid var(--card-border);
@@ -822,7 +845,7 @@
     </div>
 
     <!-- Chart Card -->
-    <div class="chart-container-card">
+    <div class="chart-container-card" id="chartCard">
       <div class="chart-header">
         <div class="legend-row">
           <div class="legend-item interactive" id="legendItemEma13" onclick="toggleIndicator('ema13')" title="Klik untuk Show / Hide EMA 13">
@@ -860,6 +883,9 @@
         <div style="font-size:11px; color:var(--text-dim); display:flex; align-items:center; gap:8px;">
           <span>Scroll to Zoom &bull; Drag to Pan</span>
           <button onclick="resetChartTimeScale()" style="background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--text-muted); padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Reset View</button>
+          <button onclick="toggleFullscreen()" style="background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--text-muted); padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;" id="fullscreenBtn" title="Toggle Fullscreen">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>Fullscreen
+          </button>
         </div>
       </div>
 
@@ -878,22 +904,13 @@
           <button class="tool-btn" title="Measure (%)" onclick="setDrawingMode('measure')" id="btn-tool-measure">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
           </button>
-          <button class="tool-btn" title="Fibonacci Retracement (Not Supported)" onclick="alert('Fibonacci belum didukung. Gunakan Trend Line atau Horizontal Line.')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-          </button>
-          <button class="tool-btn" title="Brush (Not Supported)" onclick="alert('Brush belum didukung. Gunakan Trend Line atau Horizontal Line.')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
-          </button>
-          <button class="tool-btn" title="Text (Not Supported)" onclick="alert('Text belum didukung. Gunakan Trend Line atau Horizontal Line.')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
-          </button>
           <div style="flex:1;"></div>
           <button class="tool-btn" title="Trash (Clear All Drawings)" onclick="clearDrawings()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
         </div>
 
-        <div style="flex: 1; position:relative; min-width: 0;">
+        <div style="flex: 1; position:relative; min-width: 0; display: flex; flex-direction: column; height: 100%;">
           <div id="chartHud" class="chart-hud">
           <span>Date: <span id="hudDate" class="hud-val">-</span></span>
           <span>O: <span id="hudO" class="hud-val">-</span></span>
@@ -1005,6 +1022,17 @@
     let isEma13Visible = true;
     let isEma21Visible = true;
     let isQuantVisible = true;
+
+    function toggleFullscreen() {
+      const card = document.getElementById('chartCard');
+      if (!document.fullscreenElement) {
+        card.requestFullscreen().catch(err => {
+          alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
 
     const eyeOpenSvg = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
     const eyeOffSvg = `<svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
@@ -1352,6 +1380,15 @@
         if (chart && container) {
           chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
         }
+      });
+      
+      document.addEventListener('fullscreenchange', () => {
+        // Small delay to ensure CSS transition and layout paint is done
+        setTimeout(() => {
+          if (chart && container) {
+            chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+          }
+        }, 50);
       });
 
       // Crosshair HUD updates
