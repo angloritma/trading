@@ -40,6 +40,7 @@ export class ChartController {
     @Query('tp') tp = '5.0',
     @Query('sl') sl = '5.0',
     @Query('limit') limit = '1000',
+    @Query('algo') algo = 'v1',
   ): Promise<AngloritmaResult> {
     const tf = (timeframe || '1d').toLowerCase() as '4h' | '1d';
     if (tf !== '4h' && tf !== '1d') {
@@ -50,6 +51,7 @@ export class ChartController {
     const tpPct = Math.max(0.1, parseFloat(tp) || 5.0);
     const slPct = Math.max(0.1, parseFloat(sl) || 5.0);
     const candleLimit = Math.min(1000, Math.max(50, parseInt(limit, 10) || 500));
+    const allowRunningCandle = algo === 'v3';
 
     return this.angloritmaService.computeAngloritma(
       symbol,
@@ -58,6 +60,7 @@ export class ChartController {
       tpPct,
       slPct,
       candleLimit,
+      allowRunningCandle,
     );
   }
 
@@ -72,17 +75,20 @@ export class ChartController {
     @Query('days') days = '7',
     @Query('entryMode') entryMode: 'flexible' | 'strict' = 'flexible',
     @Query('status') status: 'all' | 'active' | 'tp' | 'sl' = 'all',
+    @Query('algo') algo = 'v1',
   ) {
     const tf = (timeframe || 'all').toLowerCase() as '4h' | '1d' | 'all';
     const dayCount = parseInt(days, 10) || 7;
     const mode = (entryMode || 'flexible').toLowerCase() as 'flexible' | 'strict';
     const st = (status || 'all').toLowerCase() as 'all' | 'active' | 'tp' | 'sl';
+    const allowRunningCandle = algo === 'v3';
 
     return this.angloritmaService.scanRecentBuySignals({
       timeframe: tf,
       days: dayCount,
       entryMode: mode,
       status: st,
+      allowRunningCandle,
     });
   }
 

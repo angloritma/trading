@@ -157,6 +157,7 @@ export class AngloritmaService {
     takeProfitPct = 5.0,
     stopLossPct = 5.0,
     limit = 500,
+    allowRunningCandle = false,
   ): Promise<AngloritmaResult> {
     const sym = symbol.toUpperCase();
     const token = await this.tokenRepo.findOne({ where: { symbol: sym } });
@@ -302,7 +303,7 @@ export class AngloritmaService {
       // Hindari "repainting": Sinyal BUY hanya valid jika candle sudah close.
       // Candle terakhir (live) belum close, sehingga sinyal buy belum konfirm.
       const isLiveCandle = i === candles.length - 1;
-      if (isLiveCandle) {
+      if (isLiveCandle && !allowRunningCandle) {
         buyCondition = false;
       }
 
@@ -576,13 +577,15 @@ export class AngloritmaService {
     days?: number;
     entryMode?: 'flexible' | 'strict';
     status?: 'all' | 'active' | 'tp' | 'sl';
+    allowRunningCandle?: boolean;
   }): Promise<ScanBuySignalsResult> {
     const tfOption = options?.timeframe || 'all';
     const days = Math.max(1, options?.days || 7);
     const mode = options?.entryMode || 'flexible';
     const statusFilter = options?.status || 'all';
+    const allowRunning = options?.allowRunningCandle || false;
 
-    const cacheKey = `${tfOption}_${days}_${mode}_${statusFilter}`;
+    const cacheKey = `${tfOption}_${days}_${mode}_${statusFilter}_${allowRunning}`;
     const cached = this.scanCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.SCAN_CACHE_TTL_MS) {
       return cached.data;
@@ -621,6 +624,7 @@ export class AngloritmaService {
                 5.0,
                 5.0,
                 150, // 150 candles is ample for 7 days
+                allowRunning
               );
 
               // Find BUY markers within the date window
