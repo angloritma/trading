@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Sinyal BUY 7 Hari Terakhir — Angloritma Quant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    
+    :root {
+      /* Default dark theme */
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --green: #10b981;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --yellow: #facc15;
+      --cyan: #06b6d4;
+      --orange: #f97316;
+      --btn-bg: #1f2937;
+      --btn-border: #374151;
+      --btn-active-bg: #374151;
+      --input-bg: #1f2937;
+      --header-bg: rgba(17, 24, 39, 0.85);
+      --overlay-bg: rgba(0, 0, 0, 0.6);
+    }
+
+    html.light {
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --card-border: #e5e7eb;
+      --text-main: #111827;
+      --text-muted: #4b5563;
+      --text-dim: #9ca3af;
+      --green: #059669;
+      --red: #dc2626;
+      --blue: #2563eb;
+      --yellow: #ca8a04;
+      --cyan: #0891b2;
+      --orange: #ea580c;
+      --btn-bg: #e5e7eb;
+      --btn-border: #d1d5db;
+      --btn-active-bg: #d1d5db;
+      --input-bg: #ffffff;
+      --header-bg: rgba(255, 255, 255, 0.9);
+      --overlay-bg: rgba(255, 255, 255, 0.7);
+    }
+    
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Header */
+    header {
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: white;
+      box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-pine {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-btn.active {
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .nav-btn.inactive {
+      background: var(--btn-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--btn-border);
+    }
+
+    .nav-btn.inactive:hover {
+      color: white;
+      background: var(--btn-active-bg);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* KPI Summary Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+
+    .kpi-card.green::before { background: var(--green); }
+    .kpi-card.blue::before { background: var(--blue); }
+    .kpi-card.yellow::before { background: var(--yellow); }
+    .kpi-card.red::before { background: var(--red); }
+
+    .kpi-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Filters Bar */
+    .filter-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .btn-toggle {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .btn-toggle:hover { color: white; }
+
+    .btn-toggle.active {
+      background: #2563eb;
+      color: white;
+      border-color: #3b82f6;
+    }
+
+    .custom-input {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .custom-input:focus {
+      border-color: var(--blue);
+    }
+
+    /* Signals Table Card */
+    .signals-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header-bar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-header-title {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 640px;
+    }
+
+    table.signals-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    table.signals-table th {
+      background: var(--btn-bg);
+      color: var(--text-dim);
+      font-weight: 700;
+      padding: 10px 14px;
+      position: sticky;
+      top: 0;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #374151;
+      z-index: 10;
+    }
+
+    table.signals-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #1f2937;
+      vertical-align: middle;
+    }
+
+    table.signals-table tr:hover td {
+      background: var(--btn-bg);
+    }
+
+    /* Badges */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .pill-tf-4h {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .pill-tf-1d {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .pill-status-active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .pill-status-tp {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .pill-status-sl {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-view-chart {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-view-chart:hover {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    /* Pulse dot */
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Empty state & Spinner */
+    .state-box {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(59, 130, 246, 0.2);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-logo">A</div>
+      <div class="brand-text">
+        <h1>Angloritma Quant Screener <span class="badge-pine">Pine Script v6</span></h1>
+        <p style="font-size:12px; color:var(--text-dim);">Daftar Token dengan Sinyal BUY (7 Hari Terakhir)</p>
+      </div>
+
+      <nav style="margin-left: 16px;">
+        <a href="/chart" class="nav-btn inactive">
+          <span>📈</span> Price Chart
+        </a>
+        <a href="/signals" class="nav-btn active">
+          <span>🎯</span> 7-Day BUY Signals
+        </a>
+      </nav>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px;">
+      <!-- Theme Toggle -->
+      <button id="themeToggleBtn" class="btn-pill" style="border: 1px solid var(--card-border); background: var(--card-bg); padding:6px; margin-left: 8px;" onclick="toggleTheme()" title="Toggle Theme">
+        <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+      <span id="lastUpdatedLabel" class="font-mono" style="font-size:11px; color:var(--text-dim);">Updated: -</span>
+      <button onclick="loadSignals()" class="btn-toggle active" style="display:flex; align-items:center; gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+        Refresh Data
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- KPI Summary Cards -->
+    <div class="kpi-grid">
+      <!-- Total BUY Signals -->
+      <div class="kpi-card green">
+        <div class="kpi-title">Total Sinyal BUY (7 Hari Terakhir)</div>
+        <div id="kpiTotal" class="kpi-value font-mono text-emerald-400">0</div>
+        <div class="kpi-sub">
+          <span>4H: <strong id="kpi4hCount">0</strong></span> &bull;
+          <span>1D: <strong id="kpi1dCount">0</strong></span>
+        </div>
+      </div>
+
+      <!-- Active / Running -->
+      <div class="kpi-card blue">
+        <div class="kpi-title">Posisi Aktif (Sedang Berjalan)</div>
+        <div id="kpiActive" class="kpi-value font-mono text-blue-400">0</div>
+        <div class="kpi-sub">
+          <span class="pulse-dot"></span>
+          <span>Belum menyentuh TP atau SL</span>
+        </div>
+      </div>
+
+      <!-- Take Profit Hits -->
+      <div class="kpi-card blue">
+        <div class="kpi-title">Sukses Hit Take Profit (+5%)</div>
+        <div id="kpiTp" class="kpi-value font-mono text-blue-400">0</div>
+        <div class="kpi-sub font-mono">
+          <span>Win Rate: <strong id="kpiWinRate" style="color:var(--green);">0%</strong></span>
+        </div>
+      </div>
+
+      <!-- Stop Loss Hits -->
+      <div class="kpi-card red">
+        <div class="kpi-title">Tersentuh Stop Loss (-5%)</div>
+        <div id="kpiSl" class="kpi-value font-mono text-red-400">0</div>
+        <div class="kpi-sub">
+          <span>Candle Close &le; -5%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Panel -->
+    <div class="filter-panel">
+      <!-- Timeframe Filter -->
+      <div class="filter-group">
+        <span class="filter-label">Filter Timeframe:</span>
+        <button id="tfAll" class="btn-toggle active" onclick="setTimeframeFilter('all')">Semua Timeframe</button>
+        <button id="tf4h" class="btn-toggle" onclick="setTimeframeFilter('4h')">4H Only (Swing)</button>
+        <button id="tf1d" class="btn-toggle" onclick="setTimeframeFilter('1d')">1D Only (Macro)</button>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <span class="filter-label">Status:</span>
+        <select id="statusFilter" class="custom-input" onchange="applyFilters()">
+          <option value="all">Semua Status (Active, TP, SL)</option>
+          <option value="active">🟢 Active Only (Masih Berjalan)</option>
+          <option value="tp">🔵 Hit TP (+5%) Saja</option>
+          <option value="sl">🔴 Hit SL (-5%) Saja</option>
+        </select>
+      </div>
+
+      <!-- Algorithm Filter -->
+      <div class="filter-group">
+        <span class="filter-label">Algoritma:</span>
+        <select id="algorithmFilter" class="custom-input" onchange="toggleAlgoFilter(); loadSignals()">
+          <option value="v1">Angloritma v1 (Pine Script)</option>
+          <option value="v2">Angloritma v2 (Multi-Factor)</option>
+        </select>
+      </div>
+
+      <!-- Entry Mode (v1 only) -->
+      <div class="filter-group" id="modeFilterGroup">
+        <span class="filter-label">Mode Entry:</span>
+        <select id="modeFilter" class="custom-input" onchange="loadSignals()">
+          <option value="flexible">Fleksibel (Konfirmasi)</option>
+          <option value="strict">Ketat (Candle Bersamaan)</option>
+        </select>
+      </div>
+
+      <!-- Search & Sort -->
+      <div class="filter-group">
+        <input type="text" id="searchInput" class="custom-input" placeholder="Cari token (misal: BTC, ARB)..." oninput="applyFilters()" style="width: 200px;">
+        <select id="sortSelect" class="custom-input" onchange="applyFilters()">
+          <option value="time_desc">Sinyal Terbaru</option>
+          <option value="pnl_desc">PnL % Tertinggi</option>
+          <option value="rank_asc">Volume Rank Teratas</option>
+          <option value="win_desc">Win Rate Tertinggi</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Signals Table Card -->
+    <div class="signals-card">
+      <div class="card-header-bar">
+        <div class="card-header-title">
+          <span>🎯</span> Token Terdeteksi Sinyal BUY
+          <span id="filteredBadge" class="badge-pine" style="background:var(--btn-bg); color:var(--text-muted); border-color:var(--btn-border);">0 token</span>
+        </div>
+        <div style="font-size:12px; color:var(--text-dim);">
+          Klik <strong style="color:var(--blue);">"Lihat Chart ↗"</strong> untuk membuka diagram interaktif candlestick &amp; garis Quant
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="signals-table">
+          <thead>
+            <tr>
+              <th>Token &amp; Rank</th>
+              <th>Timeframe</th>
+              <th>Waktu Sinyal BUY</th>
+              <th>Harga Entry</th>
+              <th>Harga Saat Ini</th>
+              <th>Status Posisi</th>
+              <th>Performa (PnL %)</th>
+              <th>Target TP / SL</th>
+              <th>Quant Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="signalsTableBody">
+            <tr>
+              <td colspan="10">
+                <div class="state-box">
+                  <div class="spinner"></div>
+                  <div>Memindai seluruh token kripto untuk sinyal BUY 7 hari terakhir...</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // State
+    let allSignals = [];
+    let currentTimeframeFilter = 'all';
+
+    function toggleAlgoFilter() {
+      const algo = document.getElementById('algorithmFilter').value;
+      const modeFilterGroup = document.getElementById('modeFilterGroup');
+      if (algo === 'v2') {
+        modeFilterGroup.style.display = 'none';
+      } else {
+        modeFilterGroup.style.display = 'flex';
+      }
+    }
+
+    async function loadSignals() {
+      const tbody = document.getElementById('signalsTableBody');
+      const algo = document.getElementById('algorithmFilter').value;
+      const algoName = algo === 'v2' ? 'Multi-Factor' : 'Pine Script';
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="10">
+            <div class="state-box">
+              <div class="spinner"></div>
+              <div>Memindai sinyal BUY ${algoName} pada Kraken...</div>
+            </div>
+          </td>
+        </tr>
+      `;
+
+      try {
+        const mode = document.getElementById('modeFilter').value;
+        let url = '';
+        if (algo === 'v2') {
+          url = `/api/chart/multifactor-signals?timeframe=all&days=7&status=all`;
+        } else {
+          url = `/api/chart/signals?timeframe=all&days=7&entryMode=${mode}&status=all`;
+        }
+        
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to load signals');
+
+        const json = await res.json();
+        allSignals = json.signals || [];
+
+        document.getElementById('lastUpdatedLabel').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+
+        updateKPICounters(allSignals);
+        applyFilters();
+      } catch (err) {
+        console.error('Failed to load signals:', err);
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" style="padding:40px; text-align:center; color:var(--red);">
+              Gagal memuat sinyal: ${err.message}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function setTimeframeFilter(tf) {
+      currentTimeframeFilter = tf;
+      document.getElementById('tfAll').classList.toggle('active', tf === 'all');
+      document.getElementById('tf4h').classList.toggle('active', tf === '4h');
+      document.getElementById('tf1d').classList.toggle('active', tf === '1d');
+      applyFilters();
+    }
+
+    function updateKPICounters(signals) {
+      const total = signals.length;
+      const count4h = signals.filter(s => s.timeframe === '4h').length;
+      const count1d = signals.filter(s => s.timeframe === '1d').length;
+      const active = signals.filter(s => s.status === 'ACTIVE').length;
+      const tp = signals.filter(s => s.status === 'HIT_TP').length;
+      const sl = signals.filter(s => s.status === 'HIT_SL').length;
+
+      document.getElementById('kpiTotal').textContent = total;
+      document.getElementById('kpi4hCount').textContent = count4h;
+      document.getElementById('kpi1dCount').textContent = count1d;
+      document.getElementById('kpiActive').textContent = active;
+      document.getElementById('kpiTp').textContent = tp;
+      document.getElementById('kpiSl').textContent = sl;
+
+      const closed = tp + sl;
+      const wr = closed > 0 ? ((tp / closed) * 100).toFixed(1) : '0';
+      document.getElementById('kpiWinRate').textContent = wr + '%';
+    }
+
+    function applyFilters() {
+      let filtered = [...allSignals];
+
+      // Timeframe filter
+      if (currentTimeframeFilter !== 'all') {
+        filtered = filtered.filter(s => s.timeframe === currentTimeframeFilter);
+      }
+
+      // Status filter
+      const statusF = document.getElementById('statusFilter').value;
+      if (statusF !== 'all') {
+        if (statusF === 'active') filtered = filtered.filter(s => s.status === 'ACTIVE');
+        else if (statusF === 'tp') filtered = filtered.filter(s => s.status === 'HIT_TP');
+        else if (statusF === 'sl') filtered = filtered.filter(s => s.status === 'HIT_SL');
+      }
+
+      // Search filter
+      const search = document.getElementById('searchInput').value.trim().toUpperCase();
+      if (search) {
+        filtered = filtered.filter(s =>
+          s.symbol.includes(search) || s.baseAsset.includes(search)
+        );
+      }
+
+      // Sort
+      const sort = document.getElementById('sortSelect').value;
+      if (sort === 'time_desc') {
+        filtered.sort((a, b) => b.signalTime - a.signalTime);
+      } else if (sort === 'pnl_desc') {
+        filtered.sort((a, b) => {
+          const pnlA = a.status === 'HIT_TP' ? 5.0 : a.status === 'HIT_SL' ? -5.0 : a.priceChangeSinceEntryPct;
+          const pnlB = b.status === 'HIT_TP' ? 5.0 : b.status === 'HIT_SL' ? -5.0 : b.priceChangeSinceEntryPct;
+          return pnlB - pnlA;
+        });
+      } else if (sort === 'rank_asc') {
+        filtered.sort((a, b) => a.volumeRank - b.volumeRank);
+      } else if (sort === 'win_desc') {
+        filtered.sort((a, b) => b.winRatePct - a.winRatePct);
+      }
+
+      document.getElementById('filteredBadge').textContent = `${filtered.length} token terdeteksi`;
+      renderTable(filtered);
+    }
+
+    function renderTable(signals) {
+      const tbody = document.getElementById('signalsTableBody');
+      const algo = document.getElementById('algorithmFilter').value;
+      const isV2 = algo === 'v2';
+
+      // Update table headers based on algo
+      const theadRow = document.querySelector('table.signals-table thead tr');
+      if (theadRow) {
+        if (isV2) {
+          theadRow.children[8].textContent = 'V2 Score';
+        } else {
+          theadRow.children[8].textContent = 'Quant Status';
+        }
+      }
+
+      if (!signals.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10">
+              <div class="state-box">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <div style="font-size:14px; font-weight:600; color:var(--text-main);">Tidak ada sinyal BUY yang sesuai filter</div>
+                <div style="font-size:12px;">Coba ubah filter timeframe atau status di atas</div>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = signals.map(s => {
+        // Status Badge
+        let statusBadge = '';
+        if (s.status === 'ACTIVE') {
+          statusBadge = `<span class="pill pill-status-active"><span class="pulse-dot"></span> RUNNING</span>`;
+        } else if (s.status === 'HIT_TP') {
+          statusBadge = `<span class="pill pill-status-tp">&#10003; HIT TP (+5%)</span>`;
+        } else {
+          statusBadge = `<span class="pill pill-status-sl">&#10007; HIT SL / TRAIL</span>`;
+        }
+
+        // PnL badge
+        let pnlVal = 0;
+        let isFinal = false;
+        if (s.status === 'HIT_TP') {
+          pnlVal = s.realizedPnlPct !== undefined ? s.realizedPnlPct : 5.0; // V2 can have variable PnL for TP
+          isFinal = true;
+        } else if (s.status === 'HIT_SL') {
+          pnlVal = s.realizedPnlPct !== undefined ? s.realizedPnlPct : -5.0;
+          isFinal = true;
+        } else {
+          pnlVal = s.priceChangeSinceEntryPct;
+        }
+
+        const isPositive = pnlVal >= 0;
+        const pnlText = (isPositive ? '+' : '') + pnlVal.toFixed(2) + '%';
+        const pnlColor = isPositive ? '#34d399' : '#f87171';
+
+        // Time format
+        const d = new Date(s.signalTime * 1000);
+        const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const ageStr = s.ageHours < 24 ? `${s.ageHours} jam lalu` : `${Math.floor(s.ageHours / 24)} hari lalu`;
+
+        // Quant Status / V2 Score column
+        let quantColHtml = '';
+        if (isV2) {
+          const scoreColor = s.quantSma >= 70 ? '#10b981' : s.quantSma >= 50 ? '#facc15' : '#ef4444';
+          const scoreBg = s.quantSma >= 70 ? 'rgba(16,185,129,0.15)' : s.quantSma >= 50 ? 'rgba(234,179,8,0.15)' : 'rgba(239,68,68,0.15)';
+          const scoreBorder = s.quantSma >= 70 ? 'rgba(16,185,129,0.3)' : s.quantSma >= 50 ? 'rgba(234,179,8,0.3)' : 'rgba(239,68,68,0.3)';
+          quantColHtml = `
+            <span class="pill" style="background:${scoreBg}; color:${scoreColor}; border:1px solid ${scoreBorder};">
+              Score: ${s.quantSma}
+            </span>
+          `;
+        } else {
+          quantColHtml = `
+            <span class="pill" style="background:${s.isQuantBlue ? 'rgba(59,130,246,0.15)' : 'rgba(234,179,8,0.15)'}; color:${s.isQuantBlue ? '#60a5fa' : '#fde047'}; border:1px solid ${s.isQuantBlue ? 'rgba(59,130,246,0.3)' : 'rgba(234,179,8,0.3)'};">
+              ${s.isQuantBlue ? '🔵 Biru' : '🟡 Kuning'}
+            </span>
+          `;
+        }
+
+        return `
+          <tr>
+            <!-- Token & Rank -->
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="font-mono" style="font-size:11px; color:var(--text-dim); width:24px;">#${s.volumeRank}</span>
+                <div>
+                  <div style="font-weight:700; font-size:13px; color:var(--text-main);">${s.baseAsset}<span style="color:var(--text-dim);">/${s.quoteAsset}</span></div>
+                  <div class="font-mono" style="font-size:10px; color:var(--text-dim);">${s.symbol}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Timeframe -->
+            <td>
+              <span class="pill ${s.timeframe === '4h' ? 'pill-tf-4h' : 'pill-tf-1d'}">${s.timeframe.toUpperCase()}</span>
+            </td>
+
+            <!-- Signal Time -->
+            <td>
+              <div class="font-mono" style="font-weight:600; font-size:12px;">${dateStr} ${timeStr}</div>
+              <div style="font-size:10px; color:var(--text-dim);">${ageStr}</div>
+            </td>
+
+            <!-- Entry Price -->
+            <td class="font-mono font-bold" style="color:var(--text-main);">$${formatPrice(s.entryPrice)}</td>
+
+            <!-- Current Price -->
+            <td class="font-mono" style="color:var(--text-muted);">$${formatPrice(s.currentPrice)}</td>
+
+            <!-- Status -->
+            <td>${statusBadge}</td>
+
+            <!-- PnL -->
+            <td>
+              <span class="font-mono font-bold" style="color:${pnlColor}; font-size:13px;">${pnlText}</span>
+              ${!isFinal ? '<span style="font-size:10px; color:var(--text-dim); display:block;">(Floating)</span>' : ''}
+            </td>
+
+            <!-- TP / SL -->
+            <td class="font-mono" style="font-size:11px;">
+              <div>TP: <span style="color:var(--green);">$${formatPrice(s.takeProfitPrice)}</span></div>
+              <div>SL: <span style="color:var(--red);">$${formatPrice(s.stopLossPrice)}</span></div>
+            </td>
+
+            <!-- Quant Status -->
+            <td>
+              ${quantColHtml}
+            </td>
+
+            <!-- Action -->
+            <td>
+              <a href="/chart?symbol=${s.symbol}&timeframe=${s.timeframe}" class="btn-view-chart">
+                <span>Chart</span>
+                <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function formatPrice(val) {
+      if (val === null || val === undefined || isNaN(val)) return '-';
+      const num = Number(val);
+      if (num >= 1000) return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (num >= 1) return num.toFixed(3);
+      return num.toFixed(6);
+    }
+
+    // Auto-refresh every 1 hour
+    setInterval(loadSignals, 3600000); // 1 hour
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', loadSignals);
+  </script>
+
+    <script>
+      // Theme initialization
+      function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light' || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+          document.documentElement.classList.add('light');
+          updateThemeIcon(true);
+        } else {
+          updateThemeIcon(false);
+        }
+      }
+
+      function toggleTheme() {
+        const isLight = document.documentElement.classList.toggle('light');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        updateThemeIcon(isLight);
+        
+        // Dispatch custom event so chart can update
+        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { isLight } }));
+      }
+
+      function updateThemeIcon(isLight) {
+        const icon = document.getElementById('themeIcon');
+        if (!icon) return;
+        if (isLight) {
+          icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Moon
+        } else {
+          icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'; // Sun
+        }
+      }
+      
+      initTheme();
+    </script>
+    
+</body>
+</html>
