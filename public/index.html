@@ -741,6 +741,7 @@
       <select id="algorithmSelect" class="custom-select" title="Algoritma" onchange="toggleAlgoInputs(); loadChartData()">
         <option value="v1">Angloritma v1 (Pine Script)</option>
         <option value="v2">Angloritma v2 (Multi-Factor)</option>
+        <option value="v3">Angloritma v3 (Pine Script - Run Candle)</option>
       </select>
 
       <!-- Entry Mode (v1 only) -->
@@ -1534,7 +1535,7 @@
         if (algo === 'v2') {
           url = `/api/chart/multifactor/${currentSymbol}?timeframe=${currentTimeframe}&limit=500`;
         } else {
-          url = `/api/chart/angloritma/${currentSymbol}?timeframe=${currentTimeframe}&entryMode=${mode}&tp=${tp}&sl=${sl}&limit=500`;
+          url = `/api/chart/angloritma/${currentSymbol}?timeframe=${currentTimeframe}&entryMode=${mode}&tp=${tp}&sl=${sl}&limit=500&algo=${algo}`;
         }
 
         const res = await fetch(url);
