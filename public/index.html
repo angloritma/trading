@@ -14,6 +14,13 @@
       document.write('<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"><\/script>');
     }
   </script>
+  <!-- Lightweight Charts Drawing Tools Plugin -->
+  <script src="/js/lightweight-charts-drawing.umd.js"></script>
+  <script>
+    if (typeof LightweightChartsDrawing === 'undefined') {
+      document.write('<script src="https://unpkg.com/lightweight-charts-drawing@0.5.1/dist/lightweight-charts-drawing.umd.cjs"><\/script>');
+    }
+  </script>
   <link rel="stylesheet" href="/css/app.css">
   <style>
     /* Chart page layout */
@@ -686,9 +693,8 @@
       </div>
 
       <div style="display: flex; border-top: 1px solid var(--card-border);">
-        <!-- Tools Panel -->
         <div class="chart-tools-panel">
-          <button class="tool-btn active" title="Kursor / Crosshair" onclick="setDrawingMode('cursor')" id="btn-tool-cursor">
+          <button class="tool-btn active" title="Kursor / Select" onclick="setDrawingMode('cursor')" id="btn-tool-cursor">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
           </button>
           <button class="tool-btn" title="Garis Trend (Trend Line)" onclick="setDrawingMode('trendline')" id="btn-tool-trendline">
@@ -697,8 +703,14 @@
           <button class="tool-btn" title="Garis Horizontal" onclick="setDrawingMode('hline')" id="btn-tool-hline">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line></svg>
           </button>
-          <button class="tool-btn" title="Ukur Persentase (%)" onclick="setDrawingMode('measure')" id="btn-tool-measure">
+          <button class="tool-btn" title="Ukur Rentang & % (Measure / Date & Price Range)" onclick="setDrawingMode('measure')" id="btn-tool-measure">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+          </button>
+          <button class="tool-btn" title="Fibonacci Retracement" onclick="setDrawingMode('fib')" id="btn-tool-fib">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line><circle cx="6" cy="12" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle></svg>
+          </button>
+          <button class="tool-btn" title="Kotak Support / Resistance (Rectangle)" onclick="setDrawingMode('rectangle')" id="btn-tool-rectangle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect></svg>
           </button>
           <div style="flex:1;"></div>
           <button class="tool-btn" title="Hapus Semua Garis Gambar" onclick="clearDrawings()">
@@ -1036,15 +1048,85 @@
     let customDrawings = [];
     let drawingButtons = {};
     let partialTrendLine = null;
+    let drawingManager = null;
+
+    function initDrawingManager() {
+      if (!chart || !candleSeries) return;
+      if (drawingManager) {
+        try { drawingManager.destroy(); } catch (e) {}
+        drawingManager = null;
+      }
+
+      if (typeof LightweightChartsDrawing !== 'undefined' && LightweightChartsDrawing.DrawingManager) {
+        try {
+          drawingManager = new LightweightChartsDrawing.DrawingManager(chart, candleSeries, {
+            magnet: 'weak',
+            bars: () => (latestResult && latestResult.candles) ? latestResult.candles : []
+          });
+
+          // Restore saved drawings for current symbol
+          if (currentSymbol) {
+            const saved = localStorage.getItem(`drawings_${currentSymbol}`);
+            if (saved) {
+              try { drawingManager.importJSON(saved); } catch (e) {}
+            }
+          }
+
+          // Auto-save on drawing change
+          drawingManager.on('change', () => {
+            if (currentSymbol) {
+              try {
+                localStorage.setItem(`drawings_${currentSymbol}`, drawingManager.exportJSON());
+              } catch (e) {}
+            }
+          });
+
+          // When user finishes drawing tool or disarms it, reset UI mode to cursor
+          drawingManager.on('tool', (t) => {
+            if (!t) {
+              setDrawingMode('cursor');
+            }
+          });
+        } catch (err) {
+          console.warn('Failed to initialize LightweightChartsDrawing:', err);
+          drawingManager = null;
+        }
+      }
+    }
 
     function setDrawingMode(mode) {
       currentDrawingMode = mode;
       isDrawing = false;
+      if (partialTrendLine) {
+        try { chart.removeSeries(partialTrendLine.series); } catch(e){}
+        partialTrendLine = null;
+      }
+
+      if (drawingManager) {
+        if (mode === 'cursor') {
+          drawingManager.setTool(null);
+        } else if (mode === 'trendline' || mode === 'trend-line') {
+          drawingManager.setTool('trend-line');
+        } else if (mode === 'hline' || mode === 'horizontal-line') {
+          drawingManager.setTool('horizontal-line');
+        } else if (mode === 'measure' || mode === 'date-and-price-range') {
+          drawingManager.setTool('date-and-price-range');
+        } else if (mode === 'fib' || mode === 'fib-retracement') {
+          drawingManager.setTool('fib-retracement');
+        } else if (mode === 'rectangle') {
+          drawingManager.setTool('rectangle');
+        } else {
+          drawingManager.setTool(mode);
+        }
+      }
+
       if (!drawingButtons['cursor']) {
         drawingButtons['cursor'] = document.getElementById('btn-tool-cursor');
         drawingButtons['trendline'] = document.getElementById('btn-tool-trendline');
         drawingButtons['hline'] = document.getElementById('btn-tool-hline');
         drawingButtons['measure'] = document.getElementById('btn-tool-measure');
+        drawingButtons['fib'] = document.getElementById('btn-tool-fib');
+        drawingButtons['rectangle'] = document.getElementById('btn-tool-rectangle');
       }
       for (let key in drawingButtons) {
         if (drawingButtons[key]) {
@@ -1054,15 +1136,22 @@
     }
 
     function clearDrawings() {
-      if (!candleSeries) return;
-      customDrawings.forEach(d => {
-        if (d.type === 'trendline' || d.type === 'measure') {
-          try { chart.removeSeries(d.series); } catch(e){}
-        } else if (d.type === 'hline') {
-          try { candleSeries.removePriceLine(d.line); } catch(e){}
+      if (drawingManager) {
+        drawingManager.clear();
+        if (currentSymbol) {
+          try { localStorage.removeItem(`drawings_${currentSymbol}`); } catch(e){}
         }
-      });
-      customDrawings = [];
+      }
+      if (candleSeries && customDrawings.length) {
+        customDrawings.forEach(d => {
+          if (d.type === 'trendline' || d.type === 'measure') {
+            try { chart.removeSeries(d.series); } catch(e){}
+          } else if (d.type === 'hline') {
+            try { candleSeries.removePriceLine(d.line); } catch(e){}
+          }
+        });
+        customDrawings = [];
+      }
       showToast('Semua gambar garis dihapus', 'info');
     }
 
@@ -1113,6 +1202,7 @@
     function setupDrawingListeners() {
       if (!chart) return;
       chart.subscribeClick((param) => {
+        if (drawingManager) return; // Handled by LightweightChartsDrawing
         if (!param || !param.point) return;
         const time = getEventTime(param);
         if (!time) return;
@@ -1193,6 +1283,7 @@
       });
 
       chart.subscribeCrosshairMove((param) => {
+        if (drawingManager) return; // Handled by LightweightChartsDrawing
         if ((currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') && isDrawing && partialTrendLine) {
           if (!param || !param.point) return;
           const time = getEventTime(param);
@@ -1363,6 +1454,7 @@
       });
 
       setupDrawingListeners();
+      initDrawingManager();
     }
 
     function updateHudDefault() {
