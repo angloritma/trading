@@ -1087,12 +1087,31 @@
         } else if (currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') {
           if (!isDrawing) {
             isDrawing = true;
-            const s = chart.addLineSeries({
-              color: currentDrawingMode === 'measure' ? '#22d3ee' : '#eab308',
-              lineWidth: 2,
-              lineStyle: currentDrawingMode === 'measure' ? LightweightCharts.LineStyle.Dotted : LightweightCharts.LineStyle.Solid,
-              crosshairMarkerVisible: false,
-            });
+            let s;
+            if (currentDrawingMode === 'measure') {
+              s = chart.addBaselineSeries({
+                baseValue: { type: 'price', price: price },
+                topLineColor: 'rgba(16, 185, 129, 1)',
+                topFillColor1: 'rgba(16, 185, 129, 0.3)',
+                topFillColor2: 'rgba(16, 185, 129, 0.05)',
+                bottomLineColor: 'rgba(239, 68, 68, 1)',
+                bottomFillColor1: 'rgba(239, 68, 68, 0.05)',
+                bottomFillColor2: 'rgba(239, 68, 68, 0.3)',
+                lineWidth: 1,
+                lineStyle: LightweightCharts.LineStyle.Dashed,
+                crosshairMarkerVisible: false,
+                lastValueVisible: false,
+                priceLineVisible: false,
+                title: '0.00%',
+              });
+            } else {
+              s = chart.addLineSeries({
+                color: '#eab308',
+                lineWidth: 2,
+                lineStyle: LightweightCharts.LineStyle.Solid,
+                crosshairMarkerVisible: false,
+              });
+            }
             partialTrendLine = {
               type: currentDrawingMode,
               series: s,
@@ -1125,8 +1144,14 @@
           if (!param.point || !param.time) return;
           const price = candleSeries.coordinateToPrice(param.point.y);
           if (price === null) return;
-          let p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
-          let p2 = { time: param.time, value: price };
+          let p1, p2;
+          if (partialTrendLine.type === 'measure') {
+            p1 = { time: partialTrendLine.time1, value: price };
+            p2 = { time: param.time, value: price };
+          } else {
+            p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
+            p2 = { time: param.time, value: price };
+          }
           if (p1.time !== p2.time) {
             partialTrendLine.series.setData(p1.time > p2.time ? [p2, p1] : [p1, p2]);
           }
