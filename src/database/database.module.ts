@@ -24,7 +24,7 @@ export const DB_ENTITIES = [Token, Ohlcv, AnalysisSignal, AiRecommendation];
         entities: DB_ENTITIES,
         synchronize: true, // auto-create tables on startup
         logging: config.get('nodeEnv') === 'development' ? ['error', 'warn'] : false,
-        ssl: false,
+        ssl: config.get('database.ssl') ? { rejectUnauthorized: false } : false,
       }),
       dataSourceFactory: async (options) => {
         const dataSource = new DataSource(options!);

@@ -8,6 +8,7 @@ export default () => ({
     name: process.env.POSTGRES_DB || 'trading',
     user: process.env.POSTGRES_USER || 'trading',
     password: process.env.POSTGRES_PASSWORD || 'trading123',
+    ssl: process.env.POSTGRES_SSL === 'true',
   },
 
   redis: {
