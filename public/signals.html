@@ -645,20 +645,39 @@
     async function loadSignals() {
       const tbody = document.getElementById('signalsTableBody');
       const algo = document.getElementById('algorithmFilter').value;
+      const mode = document.getElementById('modeFilter').value;
       const algoName = algo === 'v2' ? 'Multi-Factor' : algo === 'v3' ? 'Pine Script (Run Candle)' : 'Pine Script';
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="10">
-            <div class="state-box">
-              <div class="spinner"></div>
-              <div>Memindai sinyal BUY ${algoName} pada Kraken...</div>
-            </div>
-          </td>
-        </tr>
-      `;
+
+      const cacheKey = `signals_swr_${algo}_${mode}`;
+      const cached = sessionStorage.getItem(cacheKey);
+
+      // SWR: If cache exists in sessionStorage, immediately render without spinner
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (parsed && Array.isArray(parsed.signals)) {
+            allSignals = parsed.signals;
+            updateKPICounters(allSignals);
+            applyFilters();
+            document.getElementById('lastUpdatedLabel').textContent = 'Memuat pembaruan... (Data tersimpan)';
+          }
+        } catch {
+          // ignore corrupted cache
+        }
+      } else {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10">
+              <div class="state-box">
+                <div class="spinner"></div>
+                <div>Memindai sinyal BUY ${algoName} pada Kraken...</div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
 
       try {
-        const mode = document.getElementById('modeFilter').value;
         let url = '';
         if (algo === 'v2') {
           url = `/api/chart/multifactor-signals?timeframe=all&days=7&status=all`;
@@ -672,19 +691,28 @@
         const json = await res.json();
         allSignals = json.signals || [];
 
+        // Save to sessionStorage for future instant loads
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify({ signals: allSignals, time: Date.now() }));
+        } catch {
+          // sessionStorage quota exceeded, silent ignore
+        }
+
         document.getElementById('lastUpdatedLabel').textContent = 'Updated: ' + new Date().toLocaleTimeString();
 
         updateKPICounters(allSignals);
         applyFilters();
       } catch (err) {
         console.error('Failed to load signals:', err);
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="10" style="padding:40px; text-align:center; color:var(--red);">
-              Gagal memuat sinyal: ${err.message}
-            </td>
-          </tr>
-        `;
+        if (!allSignals.length) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="10" style="padding:40px; text-align:center; color:var(--red);">
+                Gagal memuat sinyal: ${err.message}
+              </td>
+            </tr>
+          `;
+        }
       }
     }
 

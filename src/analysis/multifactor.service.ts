@@ -134,6 +134,8 @@ const DEFAULT_PARAMS: V2Params = {
 const TF_SECONDS: Record<string, number> = { '1h': 3600, '4h': 14400, '1d': 86400 };
 
 import { KrakenService } from '../kraken/kraken.service';
+import { RedisService } from '../redis/redis.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class MultiFactorService {
@@ -141,6 +143,7 @@ export class MultiFactorService {
   private universeCache = new Map<string, UniverseStats>();
   private readonly UNIVERSE_TTL_MS = 5 * 60 * 1000;
   private scanCache = new Map<string, { timestamp: number; data: ScanBuySignalsResult }>();
+  private readonly REDIS_CACHE_TTL_SEC = 300; // 5 min Valkey cache
 
   constructor(
     @InjectRepository(Ohlcv)
@@ -148,6 +151,7 @@ export class MultiFactorService {
     @InjectRepository(Token)
     private readonly tokenRepo: Repository<Token>,
     private readonly krakenService: KrakenService,
+    private readonly redisService: RedisService,
   ) {}
 
   // ─── Public API ────────────────────────────────────────────────────────────
@@ -157,6 +161,7 @@ export class MultiFactorService {
     timeframe: '4h' | '1d',
     overrides: Partial<V2Params> = {},
     limit = 500,
+    skipLiveFetch = false,
   ): Promise<V2Result> {
     const params: V2Params = { ...DEFAULT_PARAMS, ...overrides };
     const sym = symbol.toUpperCase();
@@ -184,37 +189,39 @@ export class MultiFactorService {
     }));
     let quoteVol = rows.map((r) => Number(r.quoteVolume));
 
-    try {
-      const pair = await this.krakenService.getPairBySymbol(sym);
-      if (pair) {
-        const lastDbTimeSec = candles[candles.length - 1].time;
-        const liveCandles = await this.krakenService.getOhlcv(pair.altname, timeframe, lastDbTimeSec, Math.floor(Date.now() / 1000) + 100);
-        
-        for (const lc of liveCandles) {
-          const currentLastTime = candles[candles.length - 1].time;
-          if (lc.openTime > currentLastTime) {
-            candles.push({
-              time: lc.openTime,
-              isoTime: new Date(lc.openTime * 1000).toISOString(),
-              open: parseFloat(lc.open),
-              high: parseFloat(lc.high),
-              low: parseFloat(lc.low),
-              close: parseFloat(lc.close),
-              volume: parseFloat(lc.volume),
-            });
-            quoteVol.push(parseFloat(lc.quoteVolume));
-          } else if (lc.openTime === currentLastTime) {
-            const idx = candles.length - 1;
-            candles[idx].high = Math.max(candles[idx].high, parseFloat(lc.high));
-            candles[idx].low = Math.min(candles[idx].low, parseFloat(lc.low));
-            candles[idx].close = parseFloat(lc.close);
-            candles[idx].volume = parseFloat(lc.volume);
-            quoteVol[idx] = parseFloat(lc.quoteVolume);
+    if (!skipLiveFetch) {
+      try {
+        const pair = await this.krakenService.getPairBySymbol(sym);
+        if (pair) {
+          const lastDbTimeSec = candles[candles.length - 1].time;
+          const liveCandles = await this.krakenService.getOhlcv(pair.altname, timeframe, lastDbTimeSec, Math.floor(Date.now() / 1000) + 100);
+          
+          for (const lc of liveCandles) {
+            const currentLastTime = candles[candles.length - 1].time;
+            if (lc.openTime > currentLastTime) {
+              candles.push({
+                time: lc.openTime,
+                isoTime: new Date(lc.openTime * 1000).toISOString(),
+                open: parseFloat(lc.open),
+                high: parseFloat(lc.high),
+                low: parseFloat(lc.low),
+                close: parseFloat(lc.close),
+                volume: parseFloat(lc.volume),
+              });
+              quoteVol.push(parseFloat(lc.quoteVolume));
+            } else if (lc.openTime === currentLastTime) {
+              const idx = candles.length - 1;
+              candles[idx].high = Math.max(candles[idx].high, parseFloat(lc.high));
+              candles[idx].low = Math.min(candles[idx].low, parseFloat(lc.low));
+              candles[idx].close = parseFloat(lc.close);
+              candles[idx].volume = parseFloat(lc.volume);
+              quoteVol[idx] = parseFloat(lc.quoteVolume);
+            }
           }
         }
+      } catch (err) {
+        this.logger.warn(`Failed to fetch live candle for ${sym}: ${err.message}`);
       }
-    } catch (err) {
-      this.logger.warn(`Failed to fetch live candle for ${sym}: ${err.message}`);
     }
 
     const universe = await this.getUniverse(timeframe);
@@ -232,9 +239,19 @@ export class MultiFactorService {
     const days = Math.max(1, options?.days || 7);
     const statusFilter = options?.status || 'all';
 
-    const cacheKey = `${tfOption}_${days}_${statusFilter}`;
+    const cacheKey = `v2_signals:${tfOption}:${days}:${statusFilter}`;
     const cached = this.scanCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.UNIVERSE_TTL_MS) return cached.data;
+
+    try {
+      const redisCached = await this.redisService.get<ScanBuySignalsResult>(cacheKey);
+      if (redisCached) {
+        this.scanCache.set(cacheKey, { timestamp: Date.now(), data: redisCached });
+        return redisCached;
+      }
+    } catch (err) {
+      this.logger.warn(`Valkey cache read error: ${err.message}`);
+    }
 
     const maxRow = await this.ohlcvRepo.query('SELECT max(open_time) AS max_date FROM ohlcv');
     const latestSec = Math.floor(new Date(maxRow?.[0]?.max_date ?? Date.now()).getTime() / 1000);
@@ -308,18 +325,19 @@ export class MultiFactorService {
       signals,
     };
     this.scanCache.set(cacheKey, { timestamp: Date.now(), data });
+    await this.redisService.set(cacheKey, data, this.REDIS_CACHE_TTL_SEC);
     return data;
   }
 
   /** Run v2 on every active token for a timeframe (used by scan + backtest compare). */
   async runForAll(tokens: Token[], tf: '4h' | '1d', limit = 500) {
     const out: { tok: Token; res: V2Result }[] = [];
-    const batch = 10;
+    const batch = 25;
     for (let i = 0; i < tokens.length; i += batch) {
       const settled = await Promise.all(
         tokens.slice(i, i + batch).map(async (tok) => {
           try {
-            return { tok, res: await this.compute(tok.symbol, tf, {}, limit) };
+            return { tok, res: await this.compute(tok.symbol, tf, {}, limit, true) };
           } catch {
             return null;
           }
@@ -328,6 +346,20 @@ export class MultiFactorService {
       for (const s of settled) if (s) out.push(s);
     }
     return out;
+  }
+
+  /**
+   * Pre-warm default v2 signal view every 3 minutes.
+   */
+  @Cron('0 */3 * * * *')
+  async prewarmSignalsCache(): Promise<void> {
+    try {
+      this.logger.log('🔥 Pre-warming signal cache for Angloritma v2 (Multi-factor)...');
+      await this.scanRecentBuySignals({ timeframe: 'all', days: 7, status: 'all' });
+      this.logger.log('✅ Angloritma v2 signal cache pre-warmed');
+    } catch (err) {
+      this.logger.warn(`Failed to pre-warm v2 signal cache: ${err.message}`);
+    }
   }
 
   // ─── Universe (breadth, relative strength, BTC regime) ─────────────────────

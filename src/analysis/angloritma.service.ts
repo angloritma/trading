@@ -133,6 +133,8 @@ export interface AngloritmaResult {
 }
 
 import { KrakenService } from '../kraken/kraken.service';
+import { RedisService } from '../redis/redis.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class AngloritmaService {
@@ -144,6 +146,7 @@ export class AngloritmaService {
     @InjectRepository(Token)
     private readonly tokenRepo: Repository<Token>,
     private readonly krakenService: KrakenService,
+    private readonly redisService: RedisService,
   ) {}
 
   /**
@@ -158,6 +161,7 @@ export class AngloritmaService {
     stopLossPct = 5.0,
     limit = 500,
     allowRunningCandle = false,
+    skipLiveFetch = false,
   ): Promise<AngloritmaResult> {
     const sym = symbol.toUpperCase();
     const token = await this.tokenRepo.findOne({ where: { symbol: sym } });
@@ -184,35 +188,37 @@ export class AngloritmaService {
       volume: Number(r.volume),
     }));
 
-    try {
-      const pair = await this.krakenService.getPairBySymbol(sym);
-      if (pair) {
-        const lastDbTimeSec = candles[candles.length - 1].time;
-        const liveCandles = await this.krakenService.getOhlcv(pair.altname, timeframe, lastDbTimeSec, Math.floor(Date.now() / 1000) + 100);
-        
-        for (const lc of liveCandles) {
-          const currentLastTime = candles[candles.length - 1].time;
-          if (lc.openTime > currentLastTime) {
-            candles.push({
-              time: lc.openTime,
-              isoTime: new Date(lc.openTime * 1000).toISOString(),
-              open: parseFloat(lc.open),
-              high: parseFloat(lc.high),
-              low: parseFloat(lc.low),
-              close: parseFloat(lc.close),
-              volume: parseFloat(lc.volume),
-            });
-          } else if (lc.openTime === currentLastTime) {
-            const idx = candles.length - 1;
-            candles[idx].high = Math.max(candles[idx].high, parseFloat(lc.high));
-            candles[idx].low = Math.min(candles[idx].low, parseFloat(lc.low));
-            candles[idx].close = parseFloat(lc.close);
-            candles[idx].volume = parseFloat(lc.volume);
+    if (!skipLiveFetch) {
+      try {
+        const pair = await this.krakenService.getPairBySymbol(sym);
+        if (pair) {
+          const lastDbTimeSec = candles[candles.length - 1].time;
+          const liveCandles = await this.krakenService.getOhlcv(pair.altname, timeframe, lastDbTimeSec, Math.floor(Date.now() / 1000) + 100);
+          
+          for (const lc of liveCandles) {
+            const currentLastTime = candles[candles.length - 1].time;
+            if (lc.openTime > currentLastTime) {
+              candles.push({
+                time: lc.openTime,
+                isoTime: new Date(lc.openTime * 1000).toISOString(),
+                open: parseFloat(lc.open),
+                high: parseFloat(lc.high),
+                low: parseFloat(lc.low),
+                close: parseFloat(lc.close),
+                volume: parseFloat(lc.volume),
+              });
+            } else if (lc.openTime === currentLastTime) {
+              const idx = candles.length - 1;
+              candles[idx].high = Math.max(candles[idx].high, parseFloat(lc.high));
+              candles[idx].low = Math.min(candles[idx].low, parseFloat(lc.low));
+              candles[idx].close = parseFloat(lc.close);
+              candles[idx].volume = parseFloat(lc.volume);
+            }
           }
         }
+      } catch (err) {
+        this.logger.warn(`Failed to fetch live candle for ${sym}: ${err.message}`);
       }
-    } catch (err) {
-      this.logger.warn(`Failed to fetch live candle for ${sym}: ${err.message}`);
     }
 
     const closes = candles.map((c) => c.close);
@@ -565,7 +571,8 @@ export class AngloritmaService {
 
   // ─── Scan Recent Buy Signals across all tokens ──────────────────────────────
   private scanCache = new Map<string, { timestamp: number; data: ScanBuySignalsResult }>();
-  private readonly SCAN_CACHE_TTL_MS = 30_000; // 30s cache
+  private readonly SCAN_CACHE_TTL_MS = 60_000; // 60s local fallback cache
+  private readonly REDIS_CACHE_TTL_SEC = 300; // 5 min Valkey cache
 
   /**
    * Scan active tokens for BUY signals that occurred within the last N days.
@@ -585,10 +592,23 @@ export class AngloritmaService {
     const statusFilter = options?.status || 'all';
     const allowRunning = options?.allowRunningCandle || false;
 
-    const cacheKey = `${tfOption}_${days}_${mode}_${statusFilter}_${allowRunning}`;
-    const cached = this.scanCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < this.SCAN_CACHE_TTL_MS) {
-      return cached.data;
+    const cacheKey = `v1_signals:${tfOption}:${days}:${mode}:${statusFilter}:${allowRunning}`;
+
+    // 1. Check local in-memory cache
+    const localCached = this.scanCache.get(cacheKey);
+    if (localCached && Date.now() - localCached.timestamp < this.SCAN_CACHE_TTL_MS) {
+      return localCached.data;
+    }
+
+    // 2. Check Valkey/Redis distributed cache
+    try {
+      const redisCached = await this.redisService.get<ScanBuySignalsResult>(cacheKey);
+      if (redisCached) {
+        this.scanCache.set(cacheKey, { timestamp: Date.now(), data: redisCached });
+        return redisCached;
+      }
+    } catch (err) {
+      this.logger.warn(`Valkey cache read error: ${err.message}`);
     }
 
     // Determine latest candle time in database
@@ -609,8 +629,8 @@ export class AngloritmaService {
 
     const signals: RecentBuySignal[] = [];
 
-    // Scan tokens in batches of 10 to keep DB concurrency smooth
-    const batchSize = 10;
+    // Scan tokens in batches of 25 (optimized concurrency with skipLiveFetch)
+    const batchSize = 25;
     for (let i = 0; i < tokens.length; i += batchSize) {
       const batch = tokens.slice(i, i + batchSize);
       await Promise.all(
@@ -624,7 +644,8 @@ export class AngloritmaService {
                 5.0,
                 5.0,
                 150, // 150 candles is ample for 7 days
-                allowRunning
+                allowRunning,
+                true, // skipLiveFetch = true for fast batch scanning
               );
 
               // Find BUY markers within the date window
@@ -715,7 +736,25 @@ export class AngloritmaService {
       signals,
     };
 
+    // Store in both local and Valkey caches
     this.scanCache.set(cacheKey, { timestamp: Date.now(), data: result });
+    await this.redisService.set(cacheKey, result, this.REDIS_CACHE_TTL_SEC);
+
     return result;
+  }
+
+  /**
+   * Pre-warm default signal views in background every 3 minutes so users get instant responses.
+   */
+  @Cron('0 */3 * * * *')
+  async prewarmSignalsCache(): Promise<void> {
+    try {
+      this.logger.log('🔥 Pre-warming signal cache for Angloritma v1 & v3...');
+      await this.scanRecentBuySignals({ timeframe: 'all', days: 7, entryMode: 'flexible', status: 'all', allowRunningCandle: false });
+      await this.scanRecentBuySignals({ timeframe: 'all', days: 7, entryMode: 'flexible', status: 'all', allowRunningCandle: true });
+      this.logger.log('✅ Signal cache pre-warmed successfully');
+    } catch (err) {
+      this.logger.warn(`Failed to pre-warm signal cache: ${err.message}`);
+    }
   }
 }
