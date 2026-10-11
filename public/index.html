@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Angloritma Quant Trading Chart — 4H & 1D Signals</title>
+  <title>Angloritma Quant Chart — Candlestick, Quant Line & Backtest</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,189 +14,34 @@
       document.write('<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"><\/script>');
     }
   </script>
+  <link rel="stylesheet" href="/css/app.css">
   <style>
-    
-    :root {
-      /* Default dark theme */
-      --bg: #090d16;
-      --card-bg: #111827;
-      --card-border: #1f2937;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --text-dim: #6b7280;
-      --green: #10b981;
-      --red: #ef4444;
-      --blue: #3b82f6;
-      --yellow: #facc15;
-      --cyan: #06b6d4;
-      --orange: #f97316;
-      --btn-bg: #1f2937;
-      --btn-border: #374151;
-      --btn-active-bg: #374151;
-      --input-bg: #1f2937;
-      --header-bg: rgba(17, 24, 39, 0.85);
-      --overlay-bg: rgba(0, 0, 0, 0.6);
-    }
-
-    html.light {
-      --bg: #f3f4f6;
-      --card-bg: #ffffff;
-      --card-border: #e5e7eb;
-      --text-main: #111827;
-      --text-muted: #4b5563;
-      --text-dim: #9ca3af;
-      --green: #059669;
-      --red: #dc2626;
-      --blue: #2563eb;
-      --yellow: #ca8a04;
-      --cyan: #0891b2;
-      --orange: #ea580c;
-      --btn-bg: #e5e7eb;
-      --btn-border: #d1d5db;
-      --btn-active-bg: #d1d5db;
-      --input-bg: #ffffff;
-      --header-bg: rgba(255, 255, 255, 0.9);
-      --overlay-bg: rgba(255, 255, 255, 0.7);
-    }
-    
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-    }
-
-    code, .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* Top Navigation Header */
-    header {
-      background: var(--header-bg);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 12px 24px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .brand-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #2563eb, #10b981);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      color: white;
-      box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
-    }
-
-    .brand-text h1 {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .badge-pine {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 9999px;
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .brand-text p {
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-
-    /* Controls Bar */
+    /* Chart page layout */
     .controls-wrap {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .control-group {
-      display: flex;
+    .token-search-trigger {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
       align-items: center;
-      background: var(--btn-bg);
-      border: 1px solid var(--btn-border);
-      border-radius: 8px;
-      padding: 3px;
-    }
-
-    .btn-pill {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
+      gap: 8px;
       transition: all 0.15s ease;
-      font-family: inherit;
     }
 
-    .btn-pill:hover {
-      color: var(--text-main);
-    }
-
-    .btn-pill.active {
-      background: var(--blue);
-      color: white;
-      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-    }
-
-    select.custom-select {
-      background: var(--btn-bg);
-      border: 1px solid var(--btn-border);
-      color: var(--text-main);
-      padding: 7px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      outline: none;
-      font-family: inherit;
-    }
-
-    select.custom-select:focus {
+    .token-search-trigger:hover {
       border-color: var(--blue);
+      background: var(--btn-active-bg);
     }
 
     .input-compact {
@@ -220,30 +65,11 @@
       text-transform: uppercase;
     }
 
-    .btn-action {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s ease;
-    }
-
-    .btn-action:hover {
-      background: #1d4ed8;
-    }
-
     /* Quick Asset Chips */
     .quick-chips {
       background: var(--card-bg);
       border-bottom: 1px solid var(--card-border);
-      padding: 8px 24px;
+      padding: 8px 20px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -253,7 +79,7 @@
     .chip-label {
       font-size: 11px;
       color: var(--text-dim);
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
       white-space: nowrap;
       margin-right: 4px;
@@ -263,7 +89,7 @@
       background: var(--btn-bg);
       border: 1px solid var(--btn-border);
       color: var(--text-muted);
-      padding: 4px 10px;
+      padding: 5px 11px;
       border-radius: 6px;
       font-size: 12px;
       font-weight: 600;
@@ -281,12 +107,13 @@
     .chip.active {
       border-color: var(--blue);
       color: #60a5fa;
+      background: rgba(59, 130, 246, 0.15);
     }
 
     /* Main Container */
     main {
       flex: 1;
-      padding: 20px 24px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -312,6 +139,7 @@
       gap: 4px;
       position: relative;
       overflow: hidden;
+      box-shadow: var(--shadow-sm);
     }
 
     .stat-card::before {
@@ -320,7 +148,7 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 2px;
+      height: 3px;
       background: transparent;
     }
 
@@ -334,7 +162,7 @@
       color: var(--text-dim);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      font-weight: 600;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -347,45 +175,11 @@
     }
 
     .stat-sub {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .badge-pill.green {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .badge-pill.blue {
-      background: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
-      border: 1px solid rgba(59, 130, 246, 0.3);
-    }
-
-    .badge-pill.yellow {
-      background: rgba(250, 204, 21, 0.15);
-      color: #fde047;
-      border: 1px solid rgba(250, 204, 21, 0.3);
-    }
-
-    .badge-pill.red {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     /* Chart Container Card */
@@ -397,7 +191,8 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--shadow-md);
+      position: relative;
     }
 
     .chart-header {
@@ -406,7 +201,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      border-bottom: 1px solid #1f2937;
+      border-bottom: 1px solid var(--card-border);
       padding-bottom: 12px;
     }
 
@@ -414,7 +209,7 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
     }
@@ -436,7 +231,7 @@
 
     .legend-item.interactive:hover {
       background: var(--btn-bg);
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--card-border);
     }
 
     .legend-item.hidden-indicator {
@@ -458,19 +253,13 @@
     }
 
     .legend-item.interactive:hover .eye-btn {
-      color: white;
+      color: var(--text-main);
     }
 
     .eye-icon {
       width: 14px;
       height: 14px;
       display: block;
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
     }
 
     .legend-line {
@@ -481,7 +270,7 @@
 
     #chartArea {
       width: 100%;
-      height: 540px;
+      height: 560px;
       position: relative;
     }
 
@@ -509,14 +298,14 @@
     }
 
     .chart-tools-panel {
-      width: 48px;
+      width: 44px;
       border-right: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px 0;
-      gap: 12px;
-      background: var(--card-bg);
+      padding: 10px 0;
+      gap: 10px;
+      background: var(--card-bg-elevated);
       border-bottom-left-radius: 12px;
     }
 
@@ -549,7 +338,7 @@
       height: 18px;
     }
 
-    /* Floating HUD for OHLC and Indicator values on crosshair move */
+    /* Floating HUD for OHLC */
     .chart-hud {
       position: absolute;
       top: 12px;
@@ -557,16 +346,17 @@
       z-index: 10;
       background: var(--header-bg);
       backdrop-filter: blur(8px);
-      border: 1px solid rgba(55, 65, 81, 0.6);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 8px 12px;
+      padding: 6px 12px;
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       pointer-events: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      box-shadow: var(--shadow-sm);
     }
 
     .hud-val {
@@ -591,6 +381,7 @@
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 16px;
+      box-shadow: var(--shadow-sm);
     }
 
     .card-header {
@@ -598,8 +389,6 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 14px;
-      border-bottom: 1px solid #1f2937;
-      padding-bottom: 10px;
     }
 
     .card-title {
@@ -610,58 +399,50 @@
       gap: 8px;
     }
 
-    /* Trades Table */
     .table-wrap {
-      max-height: 340px;
-      overflow-y: auto;
+      overflow-x: auto;
+      max-height: 400px;
     }
 
-    table.trades-table {
+    .trades-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
-      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    table.trades-table th {
+    .trades-table th {
       background: var(--btn-bg);
       color: var(--text-dim);
-      font-weight: 600;
-      padding: 8px 10px;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
       position: sticky;
       top: 0;
-      text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--card-border);
     }
 
-    table.trades-table td {
-      padding: 9px 10px;
-      border-bottom: 1px solid #1f2937;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-muted);
+    .trades-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--card-border);
     }
 
-    table.trades-table tr:hover td {
+    .trades-table tr:hover td {
       background: var(--btn-bg);
-      color: var(--text-main);
     }
 
-    /* Explanation Accordion */
     .rule-box {
-      background: var(--card-bg);
-      border: 1px solid #1e293b;
+      background: var(--btn-bg);
+      border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 12px;
+      padding: 12px 14px;
       margin-bottom: 10px;
-      font-size: 12px;
-      line-height: 1.5;
     }
 
     .rule-box h4 {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
-      color: #93c5fd;
       margin-bottom: 4px;
       display: flex;
       align-items: center;
@@ -669,28 +450,28 @@
     }
 
     .rule-box p {
-      color: #cbd5e1;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
     }
 
-    /* Loading Overlay */
     .loading-overlay {
       position: absolute;
       inset: 0;
       background: var(--overlay-bg);
       backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 12px;
       z-index: 20;
-      border-radius: 14px;
-      transition: opacity 0.2s ease;
     }
 
     .spinner {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       border: 3px solid rgba(59, 130, 246, 0.2);
       border-top-color: var(--blue);
       border-radius: 50%;
@@ -709,29 +490,42 @@
     <div class="brand-wrap">
       <div class="brand-logo">A</div>
       <div class="brand-text">
-        <h1>Angloritma Quant <span class="badge-pine">Pine Script v6</span></h1>
-        <p>Quant Line, EMA 13/21 Cross, TP 5% & SL 5% Close</p>
+        <h1>Angloritma Quant <span class="badge-pine" id="algoHeaderBadge">Pine Script v6</span></h1>
+        <p>Quant Line, EMA Cross, TP/SL Tracking & Backtesting</p>
       </div>
 
       <!-- Navigation tabs -->
-      <nav style="display: flex; gap: 8px; margin-left: 12px;">
-        <a href="/chart" style="padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; background: #2563eb; color: white;">📈 Chart</a>
-        <a href="/signals" style="padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; background: var(--btn-bg); color: #9ca3af; border: 1px solid var(--btn-border); transition: all 0.15s ease;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#9ca3af'">🎯 7-Day BUY Signals</a>
+      <nav class="app-nav" style="margin-left: 10px;">
+        <a href="/chart" class="nav-link active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          Chart Interaktif
+        </a>
+        <a href="/signals" class="nav-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+          Sinyal BUY
+        </a>
       </nav>
     </div>
 
     <div class="controls-wrap">
       <!-- Theme Toggle -->
-      <button id="themeToggleBtn" class="btn-pill" style="border: 1px solid var(--card-border); background: var(--card-bg);" onclick="toggleTheme()" title="Toggle Theme">
+      <button id="themeToggleBtn" class="btn-pill" style="border: 1px solid var(--btn-border); background: var(--btn-bg);" onclick="toggleTheme()" title="Ganti Tema (Gelap/Terang)">
         <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line>
         </svg>
       </button>
-    
-      <!-- Token Dropdown -->
-      <select id="tokenSelect" class="custom-select" title="Pilih Token"></select>
 
-      <!-- Timeframe Toggle: 4h & 1d as requested -->
+      <!-- Token Picker Trigger Button (⌘K / Click) -->
+      <button class="token-search-trigger" onclick="openTokenModal()" title="Cari Koin (Tekan ⌘K)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span id="selectedTokenDisplay" class="font-mono">BTCUSD</span>
+        <span class="kbd-shortcut">⌘K</span>
+      </button>
+
+      <!-- Hidden Token Select for programmatic sync -->
+      <select id="tokenSelect" style="display:none;"></select>
+
+      <!-- Timeframe Toggle: 4h & 1d -->
       <div class="control-group">
         <button id="tf4h" class="btn-pill" onclick="setTimeframe('4h')">4H</button>
         <button id="tf1d" class="btn-pill active" onclick="setTimeframe('1d')">1D</button>
@@ -739,36 +533,36 @@
 
       <!-- Algorithm Select -->
       <select id="algorithmSelect" class="custom-select" title="Algoritma" onchange="toggleAlgoInputs(); loadChartData()">
-        <option value="v1">Angloritma v1 (Pine Script)</option>
-        <option value="v2">Angloritma v2 (Multi-Factor)</option>
-        <option value="v3">Angloritma v3 (Pine Script - Run Candle)</option>
+        <option value="v1">v1 (Pine Script)</option>
+        <option value="v2">v2 (Multi-Factor)</option>
+        <option value="v3">v3 (Pine - Run Candle)</option>
       </select>
 
-      <!-- Entry Mode (v1 only) -->
-      <select id="entryModeSelect" class="custom-select" title="Mode Entry">
-        <option value="flexible">Mode: Fleksibel (Konfirmasi)</option>
-        <option value="strict">Mode: Ketat (Candle Bersamaan)</option>
+      <!-- Entry Mode (v1 & v3) -->
+      <select id="entryModeSelect" class="custom-select" title="Mode Entry" onchange="loadChartData()">
+        <option value="flexible">Mode: Fleksibel</option>
+        <option value="strict">Mode: Ketat</option>
       </select>
 
       <!-- TP & SL inputs -->
-      <div class="control-group" style="padding: 2px 6px;">
+      <div class="control-group" id="tpSlControlGroup" style="padding: 2px 6px;">
         <span class="param-label">TP %</span>
-        <input type="number" id="tpInput" class="input-compact" value="5.0" step="0.5" min="0.5" max="30">
+        <input type="number" id="tpInput" class="input-compact" value="5.0" step="0.5" min="0.5" max="30" onchange="loadChartData()">
         <span class="param-label">SL %</span>
-        <input type="number" id="slInput" class="input-compact" value="5.0" step="0.5" min="0.5" max="30">
+        <input type="number" id="slInput" class="input-compact" value="5.0" step="0.5" min="0.5" max="30" onchange="loadChartData()">
       </div>
 
-      <!-- Reload button -->
+      <!-- Recalculate button -->
       <button class="btn-action" onclick="loadChartData()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
-        Recalculate
+        Hitung Ulang
       </button>
     </div>
   </header>
 
   <!-- Quick Asset Chips -->
   <div class="quick-chips">
-    <span class="chip-label">Quick Select:</span>
+    <span class="chip-label">Pilihan Cepat:</span>
     <button class="chip active" onclick="selectToken('BTCUSD')">BTC/USD</button>
     <button class="chip" onclick="selectToken('ETHUSD')">ETH/USD</button>
     <button class="chip" onclick="selectToken('SOLUSD')">SOL/USD</button>
@@ -778,8 +572,9 @@
     <button class="chip" onclick="selectToken('DOGEUSD')">DOGE/USD</button>
     <button class="chip" onclick="selectToken('AVAXUSD')">AVAX/USD</button>
     <button class="chip" onclick="selectToken('LINKUSD')">LINK/USD</button>
-    <button class="chip" onclick="selectToken('DOTUSD')">DOT/USD</button>
     <button class="chip" onclick="selectToken('NEARUSD')">NEAR/USD</button>
+    <button class="chip" onclick="selectToken('STRKUSD')">STRK/USD</button>
+    <button class="chip" onclick="selectToken('SUIUSD')">SUI/USD</button>
   </div>
 
   <!-- Main Content -->
@@ -788,7 +583,7 @@
     <div class="stats-grid">
       <!-- Price & Change -->
       <div class="stat-card">
-        <div class="stat-title">Current Price <span id="statSymbolBadge" class="badge-pill blue">BTCUSD</span></div>
+        <div class="stat-title">Harga Terkini <span id="statSymbolBadge" class="badge-pill blue">BTCUSD</span></div>
         <div id="statPrice" class="stat-value font-mono">$0.00</div>
         <div class="stat-sub">
           <span id="statChange" class="badge-pill green">+0.00% (24h)</span>
@@ -798,7 +593,7 @@
 
       <!-- Quant Status -->
       <div id="quantCard" class="stat-card blue">
-        <div class="stat-title">Quant Trading Line <span id="quantTfRule" style="font-size:10px; color:var(--text-dim);">SMA 30</span></div>
+        <div class="stat-title"><span id="quantCardTitle">Quant Trading Line</span> <span id="quantTfRule" style="font-size:11px; color:var(--text-dim);">SMA 30</span></div>
         <div id="quantStatusBadge" class="stat-value" style="font-size:17px; display:flex; align-items:center; gap:6px;">
           <span id="quantStatusDot" style="width:12px; height:12px; border-radius:50%; background:#2563eb; display:inline-block;"></span>
           <span id="quantStatusText">QUANT BIRU</span>
@@ -811,21 +606,21 @@
 
       <!-- EMA Status -->
       <div class="stat-card green">
-        <div class="stat-title">EMA 13 / EMA 21 Trend</div>
+        <div class="stat-title" id="emaCardTitle">EMA 13 / EMA 21 Trend</div>
         <div id="emaStatusBadge" class="stat-value" style="font-size:17px; color:var(--green);">
           BULLISH TREND
         </div>
         <div class="stat-sub font-mono">
-          <span>EMA13: <span id="ema13Val" style="color:#22c55e;">$0.00</span></span>
-          <span style="margin-left:auto;">EMA21: <span id="ema21Val" style="color:var(--red);">$0.00</span></span>
+          <span>EMA13: <span id="ema13Val" style="color:var(--green); font-weight:700;">$0.00</span></span>
+          <span style="margin-left:auto;">EMA21: <span id="ema21Val" style="color:var(--red); font-weight:700;">$0.00</span></span>
         </div>
       </div>
 
       <!-- Active Trade / Position -->
       <div id="positionCard" class="stat-card">
-        <div class="stat-title">Active Position</div>
+        <div class="stat-title">Posisi Aktif (Simulasi)</div>
         <div id="positionStatus" class="stat-value" style="font-size:17px; color:var(--text-dim);">
-          FLAT (NO TRADE)
+          FLAT (TIDAK ADA TRADE)
         </div>
         <div id="positionDetails" class="stat-sub">
           <span>Menunggu sinyal BUY sesuai aturan</span>
@@ -834,7 +629,7 @@
 
       <!-- Backtest Performance -->
       <div class="stat-card green">
-        <div class="stat-title">Backtest Result (Pine Logic)</div>
+        <div class="stat-title">Hasil Backtest Historis</div>
         <div id="winRateVal" class="stat-value font-mono" style="color:var(--green);">
           0.0% <span style="font-size:13px; font-weight:500; color:var(--text-muted);">Win Rate</span>
         </div>
@@ -849,42 +644,42 @@
     <div class="chart-container-card" id="chartCard">
       <div class="chart-header">
         <div class="legend-row">
-          <div class="legend-item interactive" id="legendItemEma13" onclick="toggleIndicator('ema13')" title="Klik untuk Show / Hide EMA 13">
+          <div class="legend-item interactive" id="legendItemEma13" onclick="toggleIndicator('ema13')" title="Klik untuk Sembunyikan / Tampilkan EMA">
             <button class="eye-btn" id="eyeBtnEma13" aria-label="Toggle EMA 13" type="button">
               <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
             <span class="legend-line" style="background:#22c55e;"></span>
-            <span>EMA 13</span>
+            <span id="legendTextEma13">EMA 13</span>
           </div>
-          <div class="legend-item interactive" id="legendItemEma21" onclick="toggleIndicator('ema21')" title="Klik untuk Show / Hide EMA 21">
+          <div class="legend-item interactive" id="legendItemEma21" onclick="toggleIndicator('ema21')" title="Klik untuk Sembunyikan / Tampilkan EMA">
             <button class="eye-btn" id="eyeBtnEma21" aria-label="Toggle EMA 21" type="button">
               <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
             <span class="legend-line" style="background:#ef4444;"></span>
-            <span>EMA 21</span>
+            <span id="legendTextEma21">EMA 21</span>
           </div>
-          <div class="legend-item interactive" id="legendItemQuant" onclick="toggleIndicator('quant')" title="Klik untuk Show / Hide Quant Line">
+          <div class="legend-item interactive" id="legendItemQuant" onclick="toggleIndicator('quant')" title="Klik untuk Sembunyikan / Tampilkan Quant Line">
             <button class="eye-btn" id="eyeBtnQuant" aria-label="Toggle Quant Line" type="button">
               <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
             <span class="legend-line" style="background:linear-gradient(90deg, #2563eb 50%, #eab308 50%);"></span>
-            <span>Quant Line</span>
+            <span id="legendTextQuant">Quant Line</span>
           </div>
           <div class="legend-item">
             <span style="color:var(--green); font-weight:700;">&#9650; BUY</span>
           </div>
           <div class="legend-item">
-            <span style="color:var(--blue); font-weight:700;">&#9660; TP (+5%)</span>
+            <span style="color:var(--blue); font-weight:700;" id="legendTpLabel">&#9660; TP (+5%)</span>
           </div>
           <div class="legend-item">
-            <span style="color:var(--red); font-weight:700;">&#9660; SL (-5%)</span>
+            <span style="color:var(--red); font-weight:700;" id="legendSlLabel">&#9660; SL (-5%)</span>
           </div>
         </div>
 
-        <div style="font-size:11px; color:var(--text-dim); display:flex; align-items:center; gap:8px;">
-          <span>Scroll to Zoom &bull; Drag to Pan</span>
-          <button onclick="resetChartTimeScale()" style="background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--text-muted); padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Reset View</button>
-          <button onclick="toggleFullscreen()" style="background:var(--btn-bg); border:1px solid var(--btn-border); color:var(--text-muted); padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer;" id="fullscreenBtn" title="Toggle Fullscreen">
+        <div style="font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:8px;">
+          <span>Scroll untuk Zoom &bull; Geser untuk Pan</span>
+          <button onclick="resetChartTimeScale()" class="btn-outline" style="padding:3px 8px;">Reset View</button>
+          <button onclick="toggleFullscreen()" class="btn-outline" style="padding:3px 8px;" id="fullscreenBtn" title="Layar Penuh">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>Fullscreen
           </button>
         </div>
@@ -893,44 +688,44 @@
       <div style="display: flex; border-top: 1px solid var(--card-border);">
         <!-- Tools Panel -->
         <div class="chart-tools-panel">
-          <button class="tool-btn active" title="Crosshair" onclick="setDrawingMode('cursor')" id="btn-tool-cursor">
+          <button class="tool-btn active" title="Kursor / Crosshair" onclick="setDrawingMode('cursor')" id="btn-tool-cursor">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
           </button>
-          <button class="tool-btn" title="Trend Line" onclick="setDrawingMode('trendline')" id="btn-tool-trendline">
+          <button class="tool-btn" title="Garis Trend (Trend Line)" onclick="setDrawingMode('trendline')" id="btn-tool-trendline">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="2" y2="22"></line><circle cx="2" cy="22" r="2"></circle><circle cx="22" cy="2" r="2"></circle></svg>
           </button>
-          <button class="tool-btn" title="Horizontal Line" onclick="setDrawingMode('hline')" id="btn-tool-hline">
+          <button class="tool-btn" title="Garis Horizontal" onclick="setDrawingMode('hline')" id="btn-tool-hline">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line></svg>
           </button>
-          <button class="tool-btn" title="Measure (%)" onclick="setDrawingMode('measure')" id="btn-tool-measure">
+          <button class="tool-btn" title="Ukur Persentase (%)" onclick="setDrawingMode('measure')" id="btn-tool-measure">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
           </button>
           <div style="flex:1;"></div>
-          <button class="tool-btn" title="Trash (Clear All Drawings)" onclick="clearDrawings()">
+          <button class="tool-btn" title="Hapus Semua Garis Gambar" onclick="clearDrawings()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
         </div>
 
         <div style="flex: 1; position:relative; min-width: 0; display: flex; flex-direction: column; height: 100%;">
           <div id="chartHud" class="chart-hud">
-          <span>Date: <span id="hudDate" class="hud-val">-</span></span>
-          <span>O: <span id="hudO" class="hud-val">-</span></span>
-          <span>H: <span id="hudH" class="hud-val">-</span></span>
-          <span>L: <span id="hudL" class="hud-val">-</span></span>
-          <span>C: <span id="hudC" class="hud-val">-</span></span>
-          <span>Vol: <span id="hudV" class="hud-val">-</span></span>
-          <span>EMA13: <span id="hudEma13" class="hud-val" style="color:#22c55e;">-</span></span>
-          <span>EMA21: <span id="hudEma21" class="hud-val" style="color:var(--red);">-</span></span>
-          <span>Quant: <span id="hudQuant" class="hud-val" style="color:var(--blue);">-</span></span>
-        </div>
+            <span>Tgl: <span id="hudDate" class="hud-val">-</span></span>
+            <span>O: <span id="hudO" class="hud-val">-</span></span>
+            <span>H: <span id="hudH" class="hud-val">-</span></span>
+            <span>L: <span id="hudL" class="hud-val">-</span></span>
+            <span>C: <span id="hudC" class="hud-val">-</span></span>
+            <span>Vol: <span id="hudV" class="hud-val">-</span></span>
+            <span><span id="hudLabelEma13">EMA13</span>: <span id="hudEma13" class="hud-val" style="color:var(--green);">-</span></span>
+            <span><span id="hudLabelEma21">EMA21</span>: <span id="hudEma21" class="hud-val" style="color:var(--red);">-</span></span>
+            <span><span id="hudLabelQuant">Quant</span>: <span id="hudQuant" class="hud-val" style="color:var(--blue);">-</span></span>
+          </div>
 
-        <div id="chartArea"></div>
+          <div id="chartArea"></div>
 
-        <div id="loadingOverlay" class="loading-overlay" style="display:none;">
-          <div class="spinner"></div>
-          <div style="font-size:13px; font-weight:600; color:var(--text-main);">Calculating Angloritma Quant Indicators...</div>
+          <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+            <div class="spinner"></div>
+            <div style="font-size:14px; font-weight:700; color:var(--text-main);">Menghitung Indikator &amp; Simulasi Strategi...</div>
+          </div>
         </div>
-      </div>
       </div>
     </div>
 
@@ -941,9 +736,9 @@
         <div class="card-header">
           <div class="card-title">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Simulated Trade History (Pine Script Strategy)
+            Riwayat Trade Simulasi
           </div>
-          <span id="tableSummaryText" style="font-size:11px; color:var(--text-dim); font-family:'JetBrains Mono';">0 trades</span>
+          <span id="tableSummaryText" style="font-size:12px; color:var(--text-dim); font-family:'JetBrains Mono'; font-weight:600;">0 trades</span>
         </div>
 
         <div class="table-wrap">
@@ -951,17 +746,17 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Entry Time</th>
-                <th>Entry Price</th>
-                <th>Exit Time</th>
-                <th>Exit Price</th>
-                <th>Result</th>
+                <th>Waktu Entry</th>
+                <th>Harga Entry</th>
+                <th>Waktu Exit</th>
+                <th>Harga Exit</th>
+                <th>Hasil</th>
                 <th>PnL %</th>
-                <th>Bars</th>
+                <th>Durasi</th>
               </tr>
             </thead>
             <tbody id="tradesTableBody">
-              <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-dim);">No trades simulated yet</td></tr>
+              <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-dim);">Belum ada simulasi trade</td></tr>
             </tbody>
           </table>
         </div>
@@ -972,45 +767,38 @@
         <div class="card-header">
           <div class="card-title">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            Pine Script Rulebook
+            Panduan Logika Algoritma
           </div>
-          <span class="badge-pine">angloritma_signal.txt</span>
+          <span class="badge-pine" id="rulebookBadge">Pine Script</span>
         </div>
 
-        <div class="rule-box">
-          <h4>1. Quantitative Trading Line (Quant SMA)</h4>
-          <p>
-            Period: <strong>30 pada 1D</strong>, atau <strong>60 pada 4H</strong>.<br>
-            <span style="color:var(--blue);">&bull; Garis Biru</span>: Harga Close &ge; Quant SMA (Kondisi Bullish)<br>
-            <span style="color:#fde047;">&bull; Garis Kuning</span>: Harga Close &lt; Quant SMA (Kondisi Bearish)
-          </p>
-        </div>
-
-        <div class="rule-box">
-          <h4>2. EMA Cross & Logika BUY</h4>
-          <p>
-            <strong>Mode Fleksibel (Konfirmasi):</strong><br>
-            BUY saat <em>(Quant baru berubah Biru &amp; EMA13 &gt; EMA21)</em> ATAU <em>(EMA13 cross over EMA21 &amp; Quant sudah Biru)</em>.<br>
-            <strong>Mode Ketat:</strong><br>
-            BUY hanya jika Quant baru berubah Biru <em>bersamaan</em> dengan Bullish EMA Cross.
-          </p>
-        </div>
-
-        <div class="rule-box">
-          <h4>3. Manajemen Risiko (TP &amp; SL)</h4>
-          <p>
-            <span style="color:var(--green);">&bull; Take Profit (+5%)</span>: Limit Order running &mdash; langsung keluar saat High candle menyentuh target.<br>
-            <span style="color:var(--red);">&bull; Stop Loss (-5%)</span>: Candle Close &mdash; keluar saat harga Close ditutup di bawah batas -5%.
-          </p>
+        <div id="rulebookContent">
+          <!-- Dynamic Rulebook filled via JS -->
         </div>
       </div>
     </div>
   </main>
 
+  <!-- Token Search Modal (Cmd+K / Click) -->
+  <div class="modal-backdrop" id="tokenModal" onclick="closeTokenModal(event)">
+    <div class="search-modal" onclick="event.stopPropagation()">
+      <div class="search-modal-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="tokenSearchInput" class="search-modal-input" placeholder="Ketik nama koin atau simbol (misal: BTC, SOL, ETH)..." oninput="filterTokenList()">
+        <span class="kbd-shortcut">ESC</span>
+      </div>
+      <div class="search-modal-list" id="tokenModalList">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/common.js"></script>
   <script>
     // State
     let currentSymbol = 'BTCUSD';
     let currentTimeframe = '1d';
+    let availableTokens = [];
     let chart = null;
     let candleSeries = null;
     let volumeSeries = null;
@@ -1023,12 +811,14 @@
     let isEma13Visible = true;
     let isEma21Visible = true;
     let isQuantVisible = true;
+    let latestResult = null;
 
+    // Fullscreen Toggle
     function toggleFullscreen() {
       const card = document.getElementById('chartCard');
       if (!document.fullscreenElement) {
         card.requestFullscreen().catch(err => {
-          alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+          showToast(`Gagal membuka fullscreen: ${err.message}`, 'error');
         });
       } else {
         document.exitFullscreen();
@@ -1063,73 +853,202 @@
       }
     }
 
-    let latestResult = null;
-
     function toggleAlgoInputs() {
       const algo = document.getElementById('algorithmSelect').value;
       const entryMode = document.getElementById('entryModeSelect');
+      const tpSlGroup = document.getElementById('tpSlControlGroup');
+      const badge = document.getElementById('algoHeaderBadge');
       const tpInput = document.getElementById('tpInput');
       const slInput = document.getElementById('slInput');
-      
+
       if (algo === 'v2') {
         entryMode.style.display = 'none';
-        tpInput.disabled = true;
-        slInput.disabled = true;
-        tpInput.title = "V2 uses dynamic ATR trailing stops, fixed TP/SL disabled";
-        slInput.title = "V2 uses dynamic ATR trailing stops, fixed TP/SL disabled";
+        tpSlGroup.style.display = 'none';
+        badge.textContent = 'Multi-Factor v2';
+        document.getElementById('legendTextEma13').textContent = 'EMA 20';
+        document.getElementById('legendTextEma21').textContent = 'EMA 50';
+        document.getElementById('legendTextQuant').textContent = 'Score V2';
+        document.getElementById('hudLabelEma13').textContent = 'EMA20';
+        document.getElementById('hudLabelEma21').textContent = 'EMA50';
+        document.getElementById('hudLabelQuant').textContent = 'Score';
+        document.getElementById('quantCardTitle').textContent = 'V2 Multi-Factor Score';
+        document.getElementById('legendTpLabel').textContent = '▼ TP1 (2R)';
+        document.getElementById('legendSlLabel').textContent = '▼ Stop Loss';
       } else {
         entryMode.style.display = 'inline-block';
-        tpInput.disabled = false;
-        slInput.disabled = false;
-        tpInput.title = "";
-        slInput.title = "";
+        tpSlGroup.style.display = 'flex';
+        badge.textContent = algo === 'v3' ? 'Pine v3 (Running)' : 'Pine Script v1';
+        document.getElementById('legendTextEma13').textContent = 'EMA 13';
+        document.getElementById('legendTextEma21').textContent = 'EMA 21';
+        document.getElementById('legendTextQuant').textContent = 'Quant Line';
+        document.getElementById('hudLabelEma13').textContent = 'EMA13';
+        document.getElementById('hudLabelEma21').textContent = 'EMA21';
+        document.getElementById('hudLabelQuant').textContent = 'Quant';
+        document.getElementById('quantCardTitle').textContent = 'Quant Trading Line';
+        document.getElementById('legendTpLabel').textContent = `▼ TP (+${tpInput.value}%)`;
+        document.getElementById('legendSlLabel').textContent = `▼ SL (-${slInput.value}%)`;
+      }
+      renderRulebook(algo);
+    }
+
+    function renderRulebook(algo) {
+      const container = document.getElementById('rulebookContent');
+      const badge = document.getElementById('rulebookBadge');
+      if (algo === 'v2') {
+        badge.textContent = 'Multi-Factor v2';
+        container.innerHTML = `
+          <div class="rule-box">
+            <h4>1. Skor Multi-Faktor (0 - 100)</h4>
+            <p>
+              Menggabungkan 5 faktor: <strong>Regime</strong> (20 pt), <strong>Trend</strong> (25 pt), 
+              <strong>Relative Strength</strong> (20 pt), <strong>Momentum</strong> (15 pt), dan <strong>Volume Spike</strong> (20 pt).
+              BUY terpicu saat skor &ge; 70 dan terjadi breakout resistance.
+            </p>
+          </div>
+          <div class="rule-box">
+            <h4>2. Trend Filter & EMA 20/50</h4>
+            <p>
+              Hanya entry saat harga di atas EMA 50 &amp; pasar dalam kondisi Risk-On (BTC &gt; EMA50).
+            </p>
+          </div>
+          <div class="rule-box">
+            <h4>3. Exit Adaptif (ATR Dynamic Stop)</h4>
+            <p>
+              Take Profit bertahap pada TP1 (+2R) lalu trailing stop chandelier ratchet naik mengikuti volatilitas ATR.
+            </p>
+          </div>
+        `;
+      } else {
+        const isV3 = algo === 'v3';
+        badge.textContent = isV3 ? 'Pine v3' : 'Pine v1';
+        container.innerHTML = `
+          <div class="rule-box">
+            <h4>1. Quantitative Trading Line (Quant SMA)</h4>
+            <p>
+              Periode: <strong>30 pada 1D</strong>, atau <strong>60 pada 4H</strong>.<br>
+              <span style="color:var(--blue); font-weight:700;">&bull; Garis Biru</span>: Harga Close &ge; Quant SMA (Bullish)<br>
+              <span style="color:var(--yellow); font-weight:700;">&bull; Garis Kuning</span>: Harga Close &lt; Quant SMA (Bearish)
+            </p>
+          </div>
+          <div class="rule-box">
+            <h4>2. EMA Cross &amp; Logika BUY ${isV3 ? '(Running Candle)' : ''}</h4>
+            <p>
+              <strong>Mode Fleksibel:</strong> BUY saat Quant Biru &amp; EMA13 &gt; EMA21 (dengan konfirmasi).<br>
+              <strong>Mode Ketat:</strong> BUY hanya saat Quant baru berubah Biru bertepatan dengan Bullish EMA Cross.<br>
+              ${isV3 ? '<em>(Pada v3, sinyal dievaluasi secara realtime pada harga candle yang sedang berjalan)</em>' : ''}
+            </p>
+          </div>
+          <div class="rule-box">
+            <h4>3. Manajemen Risiko (TP &amp; SL)</h4>
+            <p>
+              <span style="color:var(--green); font-weight:700;">&bull; Take Profit</span>: Limit order langsung tereksekusi saat High menyentuh target.<br>
+              <span style="color:var(--red); font-weight:700;">&bull; Stop Loss</span>: Dievaluasi saat candle Close ditutup di bawah batas SL.
+            </p>
+          </div>
+        `;
       }
     }
 
-    // Initialize Chart
-    
+    // Token Modal Logic
+    function openTokenModal() {
+      const modal = document.getElementById('tokenModal');
+      modal.classList.add('open');
+      const input = document.getElementById('tokenSearchInput');
+      input.value = '';
+      input.focus();
+      renderTokenModalList(availableTokens);
+    }
+
+    function closeTokenModal(e) {
+      if (e) e.stopPropagation();
+      document.getElementById('tokenModal').classList.remove('open');
+    }
+
+    function renderTokenModalList(tokens) {
+      const listContainer = document.getElementById('tokenModalList');
+      if (!tokens.length) {
+        listContainer.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-dim);">Token tidak ditemukan</div>';
+        return;
+      }
+      listContainer.innerHTML = tokens.map(t => {
+        const isSelected = t.symbol === currentSymbol;
+        const chg = t.priceChangePct24h !== undefined ? Number(t.priceChangePct24h) : 0;
+        const chgColor = chg >= 0 ? 'var(--green)' : 'var(--red)';
+        return `
+          <div class="search-item ${isSelected ? 'selected' : ''}" onclick="selectToken('${t.symbol}'); closeTokenModal();">
+            <div>
+              <span class="search-item-symbol">${t.baseAsset}/${t.quoteAsset}</span>
+              <span class="search-item-rank">#${t.volumeRank}</span>
+              <div style="font-size:11px; color:var(--text-dim);">${t.symbol}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="search-item-price">$${formatPrice(t.lastPrice)}</div>
+              <div class="font-mono" style="font-size:11px; color:${chgColor}; font-weight:600;">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterTokenList() {
+      const query = document.getElementById('tokenSearchInput').value.trim().toUpperCase();
+      if (!query) {
+        renderTokenModalList(availableTokens);
+        return;
+      }
+      const filtered = availableTokens.filter(t => 
+        t.symbol.includes(query) || (t.baseAsset && t.baseAsset.includes(query))
+      );
+      renderTokenModalList(filtered);
+    }
+
+    // Keyboard Shortcuts (Cmd+K / Esc)
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openTokenModal();
+      }
+      if (e.key === 'Escape') {
+        closeTokenModal();
+      }
+    });
+
+    // Theme Changed Event listener for Chart redraw
     window.addEventListener('themeChanged', (e) => {
-      if (typeof chart !== 'undefined' && chart) {
+      if (chart) {
         const isLight = e.detail.isLight;
         chart.applyOptions({
           layout: {
             background: { color: isLight ? '#ffffff' : '#111827' },
-            textColor: isLight ? '#4b5563' : '#9ca3af',
+            textColor: isLight ? '#475569' : '#9ca3af',
           },
           grid: {
-            vertLines: { color: isLight ? 'rgba(229, 231, 235, 1)' : 'rgba(31, 41, 55, 0.6)' },
-            horzLines: { color: isLight ? 'rgba(229, 231, 235, 1)' : 'rgba(31, 41, 55, 0.6)' },
+            vertLines: { color: isLight ? 'rgba(226, 232, 240, 1)' : 'rgba(31, 41, 55, 0.6)' },
+            horzLines: { color: isLight ? 'rgba(226, 232, 240, 1)' : 'rgba(31, 41, 55, 0.6)' },
           }
         });
       }
     });
-    
+
     // Drawing state
-    let currentDrawingMode = 'cursor'; // 'cursor', 'trendline', 'hline'
+    let currentDrawingMode = 'cursor';
     let isDrawing = false;
-    let customDrawings = []; // array of custom drawn series/priceLines
+    let customDrawings = [];
     let drawingButtons = {};
     let partialTrendLine = null;
 
     function setDrawingMode(mode) {
       currentDrawingMode = mode;
-      isDrawing = false; // Reset if partially drawing
-      
-      // Update button UI
+      isDrawing = false;
       if (!drawingButtons['cursor']) {
         drawingButtons['cursor'] = document.getElementById('btn-tool-cursor');
         drawingButtons['trendline'] = document.getElementById('btn-tool-trendline');
         drawingButtons['hline'] = document.getElementById('btn-tool-hline');
         drawingButtons['measure'] = document.getElementById('btn-tool-measure');
       }
-      
       for (let key in drawingButtons) {
         if (drawingButtons[key]) {
-          if (key === mode) {
-            drawingButtons[key].classList.add('active');
-          } else {
-            drawingButtons[key].classList.remove('active');
-          }
+          drawingButtons[key].classList.toggle('active', key === mode);
         }
       }
     }
@@ -1144,145 +1063,76 @@
         }
       });
       customDrawings = [];
+      showToast('Semua gambar garis dihapus', 'info');
     }
 
     function setupDrawingListeners() {
       if (!chart) return;
-      
       chart.subscribeClick((param) => {
-        if (currentDrawingMode === 'cursor') return;
         if (!param.point || !param.time) return;
-        
-        // Get price at clicked y coordinate
         const price = candleSeries.coordinateToPrice(param.point.y);
         if (price === null) return;
-        
-        if (currentDrawingMode === 'hline') {
-          const hline = candleSeries.createPriceLine({
-            price: price,
-            color: '#f97316',
-            lineWidth: 2,
-            lineStyle: LightweightCharts.LineStyle.Solid,
-            axisLabelVisible: true,
-          });
-          customDrawings.push({ type: 'hline', line: hline });
-          
-          // Revert to cursor mode after drawing
-          setDrawingMode('cursor');
-        } 
-        else if (currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') {
-          if (!isDrawing) {
-            // Start trendline or measure
-            isDrawing = true;
-            
-            let series;
-            if (currentDrawingMode === 'measure') {
-              series = chart.addBaselineSeries({
-                baseValue: { type: 'price', price: price },
-                topLineColor: 'rgba(16, 185, 129, 1)',
-                topFillColor1: 'rgba(16, 185, 129, 0.3)',
-                topFillColor2: 'rgba(16, 185, 129, 0.05)',
-                bottomLineColor: 'rgba(239, 68, 68, 1)',
-                bottomFillColor1: 'rgba(239, 68, 68, 0.05)',
-                bottomFillColor2: 'rgba(239, 68, 68, 0.3)',
-                lineWidth: 1,
-                lineStyle: LightweightCharts.LineStyle.Dashed,
-                crosshairMarkerVisible: false,
-                lastValueVisible: false,
-                priceLineVisible: false,
-                title: '0.00%',
-              });
-            } else {
-              series = chart.addLineSeries({
-                color: '#0ea5e9', // blue for trendline
-                lineWidth: 2,
-                lastValueVisible: false,
-                priceLineVisible: false,
-                crosshairMarkerVisible: false,
-                lineStyle: LightweightCharts.LineStyle.Solid,
-              });
-            }
 
+        if (currentDrawingMode === 'hline') {
+          const line = candleSeries.createPriceLine({
+            price,
+            color: '#3b82f6',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Dashed,
+            axisLabelVisible: true,
+            title: `$${formatPrice(price)}`,
+          });
+          customDrawings.push({ type: 'hline', line });
+          setDrawingMode('cursor');
+        } else if (currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') {
+          if (!isDrawing) {
+            isDrawing = true;
+            const s = chart.addLineSeries({
+              color: currentDrawingMode === 'measure' ? '#22d3ee' : '#eab308',
+              lineWidth: 2,
+              lineStyle: currentDrawingMode === 'measure' ? LightweightCharts.LineStyle.Dotted : LightweightCharts.LineStyle.Solid,
+              crosshairMarkerVisible: false,
+            });
             partialTrendLine = {
               type: currentDrawingMode,
+              series: s,
               time1: param.time,
               price1: price,
-              series: series
             };
-            
-            // Add single point so far
-            partialTrendLine.series.setData([
-              { time: param.time, value: price }
-            ]);
+            s.setData([{ time: param.time, value: price }]);
           } else {
-            // Finish trendline/measure
             isDrawing = false;
-            
             let p1, p2;
             if (partialTrendLine.type === 'measure') {
-              // For a rectangle, both points use the current price, 
-              // baseline fills down to price1
               p1 = { time: partialTrendLine.time1, value: price };
               p2 = { time: param.time, value: price };
             } else {
               p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
               p2 = { time: param.time, value: price };
             }
-            
-            if (p1.time > p2.time) {
-              let tmp = p1;
-              p1 = p2;
-              p2 = tmp;
-            } else if (p1.time === p2.time) {
-              // Can't have two points with same time
-              setDrawingMode('cursor');
-              chart.removeSeries(partialTrendLine.series);
-              partialTrendLine = null;
-              return;
+            if (p1.time !== p2.time) {
+              partialTrendLine.series.setData(p1.time > p2.time ? [p2, p1] : [p1, p2]);
             }
-            
-            partialTrendLine.series.setData([p1, p2]);
-            
-            if (partialTrendLine.type === 'measure') {
-               const pct = ((price - partialTrendLine.price1) / partialTrendLine.price1) * 100;
-               // Count bars (approximate index difference based on time, but since time is unix timestamp, it's rough)
-               partialTrendLine.series.applyOptions({ title: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' });
-            }
-            
             customDrawings.push({ type: partialTrendLine.type, series: partialTrendLine.series });
             partialTrendLine = null;
-            
             setDrawingMode('cursor');
           }
         }
       });
-      
+
       chart.subscribeCrosshairMove((param) => {
         if ((currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') && isDrawing && partialTrendLine) {
           if (!param.point || !param.time) return;
           const price = candleSeries.coordinateToPrice(param.point.y);
           if (price === null) return;
-          
-          let p1, p2;
-          if (partialTrendLine.type === 'measure') {
-            p1 = { time: partialTrendLine.time1, value: price };
-            p2 = { time: param.time, value: price };
-          } else {
-            p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
-            p2 = { time: param.time, value: price };
-          }
-          
+          let p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
+          let p2 = { time: param.time, value: price };
           if (p1.time !== p2.time) {
-             if (p1.time > p2.time) {
-               partialTrendLine.series.setData([p2, p1]);
-             } else {
-               partialTrendLine.series.setData([p1, p2]);
-             }
+            partialTrendLine.series.setData(p1.time > p2.time ? [p2, p1] : [p1, p2]);
           }
-          
           if (partialTrendLine.type === 'measure') {
-             const pct = ((price - partialTrendLine.price1) / partialTrendLine.price1) * 100;
-             partialTrendLine.series.applyOptions({ title: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' });
+            const pct = ((price - partialTrendLine.price1) / partialTrendLine.price1) * 100;
+            partialTrendLine.series.applyOptions({ title: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' });
           }
         }
       });
@@ -1291,46 +1141,48 @@
     function initChart() {
       const container = document.getElementById('chartArea');
       container.innerHTML = '';
-      customDrawings = []; // Reset on new chart
+      customDrawings = [];
       isDrawing = false;
       partialTrendLine = null;
+
+      const isLight = document.documentElement.classList.contains('light');
 
       chart = LightweightCharts.createChart(container, {
         width: container.clientWidth,
         height: container.clientHeight,
         layout: {
-          background: { color: document.documentElement.classList.contains('light') ? '#ffffff' : '#111827' },
-          textColor: document.documentElement.classList.contains('light') ? '#4b5563' : '#9ca3af',
+          background: { color: isLight ? '#ffffff' : '#111827' },
+          textColor: isLight ? '#475569' : '#9ca3af',
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: 11,
         },
         grid: {
-          vertLines: { color: document.documentElement.classList.contains('light') ? 'rgba(229, 231, 235, 1)' : 'rgba(31, 41, 55, 0.6)' },
-          horzLines: { color: document.documentElement.classList.contains('light') ? 'rgba(229, 231, 235, 1)' : 'rgba(31, 41, 55, 0.6)' },
+          vertLines: { color: isLight ? 'rgba(226, 232, 240, 1)' : 'rgba(31, 41, 55, 0.6)' },
+          horzLines: { color: isLight ? 'rgba(226, 232, 240, 1)' : 'rgba(31, 41, 55, 0.6)' },
         },
         crosshair: {
           mode: LightweightCharts.CrosshairMode.Normal,
           vertLine: {
             color: 'rgba(156, 163, 175, 0.4)',
-            labelBackgroundColor: document.documentElement.classList.contains('light') ? '#4b5563' : '#1f2937'
+            labelBackgroundColor: isLight ? '#475569' : '#1f2937'
           },
           horzLine: {
             color: 'rgba(156, 163, 175, 0.4)',
-            labelBackgroundColor: document.documentElement.classList.contains('light') ? '#4b5563' : '#1f2937'
+            labelBackgroundColor: isLight ? '#475569' : '#1f2937'
           },
         },
         rightPriceScale: {
-          borderColor: '#1f2937',
+          borderColor: isLight ? '#e2e8f0' : '#1f2937',
           scaleMargins: { top: 0.1, bottom: 0.2 },
         },
         timeScale: {
-          borderColor: '#1f2937',
+          borderColor: isLight ? '#e2e8f0' : '#1f2937',
           timeVisible: true,
           secondsVisible: false,
         },
       });
 
-      // Volume Series (bottom 20%)
+      // Volume Series
       volumeSeries = chart.addHistogramSeries({
         priceFormat: { type: 'volume' },
         priceScaleId: 'volume',
@@ -1349,7 +1201,7 @@
         wickDownColor: '#ef4444',
       });
 
-      // EMA 13 Line (Green)
+      // EMA Lines
       ema13Series = chart.addLineSeries({
         color: '#22c55e',
         lineWidth: 2,
@@ -1358,7 +1210,6 @@
         visible: isEma13Visible,
       });
 
-      // EMA 21 Line (Red)
       ema21Series = chart.addLineSeries({
         color: '#ef4444',
         lineWidth: 2,
@@ -1367,7 +1218,7 @@
         visible: isEma21Visible,
       });
 
-      // Quant Line (Single Series, dynamically colored Blue / Yellow)
+      // Quant Line
       quantSeries = chart.addLineSeries({
         color: '#2563eb',
         lineWidth: 2,
@@ -1382,61 +1233,52 @@
           chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
         }
       });
-      
+
       document.addEventListener('fullscreenchange', () => {
-        // Small delay to ensure CSS transition and layout paint is done
         setTimeout(() => {
           if (chart && container) {
             chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
           }
-        }, 50);
+        }, 60);
       });
 
-      // Crosshair HUD updates
+      // Crosshair Move HUD
       chart.subscribeCrosshairMove((param) => {
         if (!param || !param.time || !param.seriesData) {
           updateHudDefault();
           return;
         }
+        const candleData = param.seriesData.get(candleSeries);
+        const volumeData = param.seriesData.get(volumeSeries);
+        const e13Data = param.seriesData.get(ema13Series);
+        const e21Data = param.seriesData.get(ema21Series);
+        const qData = param.seriesData.get(quantSeries);
 
-        const candle = param.seriesData.get(candleSeries);
-        if (candle) {
-          document.getElementById('hudO').textContent = formatPrice(candle.open);
-          document.getElementById('hudH').textContent = formatPrice(candle.high);
-          document.getElementById('hudL').textContent = formatPrice(candle.low);
-          document.getElementById('hudC').textContent = formatPrice(candle.close);
-          document.getElementById('hudC').style.color = candle.close >= candle.open ? '#10b981' : '#ef4444';
+        if (candleData) {
+          document.getElementById('hudO').textContent = formatPrice(candleData.open);
+          document.getElementById('hudH').textContent = formatPrice(candleData.high);
+          document.getElementById('hudL').textContent = formatPrice(candleData.low);
+          document.getElementById('hudC').textContent = formatPrice(candleData.close);
+          document.getElementById('hudC').style.color = candleData.close >= candleData.open ? 'var(--green)' : 'var(--red)';
         }
-
-        const vol = param.seriesData.get(volumeSeries);
-        if (vol) {
-          document.getElementById('hudV').textContent = formatVol(vol.value);
+        if (volumeData) {
+          document.getElementById('hudV').textContent = formatVol(volumeData.value);
         }
-
-        const e13 = param.seriesData.get(ema13Series);
-        if (e13 && e13.value !== undefined) {
-          document.getElementById('hudEma13').textContent = formatPrice(e13.value);
+        if (e13Data) {
+          document.getElementById('hudEma13').textContent = formatPrice(e13Data.value);
         }
-
-        const e21 = param.seriesData.get(ema21Series);
-        if (e21 && e21.value !== undefined) {
-          document.getElementById('hudEma21').textContent = formatPrice(e21.value);
+        if (e21Data) {
+          document.getElementById('hudEma21').textContent = formatPrice(e21Data.value);
         }
-
-        const qVal = param.seriesData.get(quantSeries);
-        if (qVal && qVal.value !== undefined) {
-          const pt = (latestResult?.quantSma || []).find((x) => x.time === param.time);
-          const isBlue = pt ? pt.isBlue : latestResult?.currentStatus?.isQuantBlue;
-          document.getElementById('hudQuant').textContent = formatPrice(qVal.value) + (isBlue ? ' (Biru)' : ' (Kuning)');
-          document.getElementById('hudQuant').style.color = isBlue ? '#3b82f6' : '#facc15';
+        if (qData) {
+          document.getElementById('hudQuant').textContent = formatPrice(qData.value);
         }
-
-        // Date
-        const d = new Date(param.time * 1000);
-        document.getElementById('hudDate').textContent = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (param.time) {
+          const d = new Date((typeof param.time === 'number' ? param.time : param.time.year) * 1000);
+          document.getElementById('hudDate').textContent = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
       });
 
-      // Call drawing listeners setup after chart initialization
       setupDrawingListeners();
     }
 
@@ -1447,11 +1289,11 @@
       document.getElementById('hudH').textContent = formatPrice(last.high);
       document.getElementById('hudL').textContent = formatPrice(last.low);
       document.getElementById('hudC').textContent = formatPrice(last.close);
-      document.getElementById('hudC').style.color = last.close >= last.open ? '#10b981' : '#ef4444';
+      document.getElementById('hudC').style.color = last.close >= last.open ? 'var(--green)' : 'var(--red)';
       document.getElementById('hudV').textContent = formatVol(last.volume);
 
       const d = new Date(last.time * 1000);
-      document.getElementById('hudDate').textContent = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('hudDate').textContent = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       if (latestResult.currentStatus.ema13) {
         document.getElementById('hudEma13').textContent = formatPrice(latestResult.currentStatus.ema13);
@@ -1462,7 +1304,7 @@
       if (latestResult.currentStatus.quantSma) {
         const isBlue = latestResult.currentStatus.isQuantBlue;
         document.getElementById('hudQuant').textContent = formatPrice(latestResult.currentStatus.quantSma) + (isBlue ? ' (Biru)' : ' (Kuning)');
-        document.getElementById('hudQuant').style.color = isBlue ? '#3b82f6' : '#facc15';
+        document.getElementById('hudQuant').style.color = isBlue ? 'var(--blue)' : 'var(--yellow)';
       }
     }
 
@@ -1470,16 +1312,16 @@
       if (chart) chart.timeScale().fitContent();
     }
 
-    // Load Available Tokens for dropdown
+    // Load Available Tokens
     async function loadTokens() {
       try {
         const res = await fetch('/api/chart/tokens');
         const json = await res.json();
-        const tokens = json.data || [];
+        availableTokens = json.data || [];
+
         const select = document.getElementById('tokenSelect');
         select.innerHTML = '';
-
-        tokens.forEach((t) => {
+        availableTokens.forEach((t) => {
           const opt = document.createElement('option');
           opt.value = t.symbol;
           opt.textContent = `${t.symbol} (#${t.volumeRank}) — $${parseFloat(t.lastPrice).toLocaleString()}`;
@@ -1487,9 +1329,7 @@
           select.appendChild(opt);
         });
 
-        select.addEventListener('change', (e) => {
-          selectToken(e.target.value);
-        });
+        select.addEventListener('change', (e) => selectToken(e.target.value));
       } catch (err) {
         console.error('Failed to load tokens list:', err);
       }
@@ -1497,15 +1337,11 @@
 
     function selectToken(sym) {
       currentSymbol = sym;
+      document.getElementById('selectedTokenDisplay').textContent = sym;
       document.getElementById('tokenSelect').value = sym;
 
-      // Update chip active states
       document.querySelectorAll('.chip').forEach((c) => {
-        if (c.textContent.replace('/', '') === sym) {
-          c.classList.add('active');
-        } else {
-          c.classList.remove('active');
-        }
+        c.classList.toggle('active', c.textContent.replace('/', '') === sym);
       });
 
       loadChartData();
@@ -1552,18 +1388,17 @@
         renderTradesTable(data.trades);
       } catch (err) {
         console.error('Failed to load chart data:', err);
-        alert('Gagal memuat data chart: ' + err.message);
+        showToast('Gagal memuat chart: ' + err.message, 'error');
       } finally {
         overlay.style.display = 'none';
       }
     }
 
     function renderChart(data) {
-      // Clear old price lines references before recreating chart
       tpPriceLine = null;
       slPriceLine = null;
       entryPriceLine = null;
-      
+
       initChart();
 
       // 1. Candles
@@ -1578,7 +1413,7 @@
       }));
       volumeSeries.setData(volumeData);
 
-      // 3. EMA 13 & 21 (v1) or EMA 20 & 50 (v2)
+      // 3. EMA Series
       const algo = document.getElementById('algorithmSelect').value;
       const isV2 = algo === 'v2';
 
@@ -1588,15 +1423,12 @@
       ema21Series.applyOptions({ visible: isEma21Visible, title: isV2 ? 'EMA 50' : 'EMA 21' });
       ema21Series.setData((isV2 ? data.ema50 : data.ema21) || []);
 
-      // 4. Quant Line / Score (Single Series)
-      let quantColor = '#2563eb';
+      // 4. Quant Line
       if (isV2) {
-        // In v2, score is formatted to match the style
         quantSeries.applyOptions({
-          color: '#10b981', // default color, overriden by per point
+          color: '#10b981',
           title: 'V2 Score',
           visible: isQuantVisible,
-          priceScaleId: '', // Default price scale for line overlay on chart
         });
         const scorePts = data.score || [];
         quantSeries.setData(
@@ -1609,7 +1441,7 @@
       } else {
         const quant = data.quantSma || [];
         const isBlue = data.currentStatus ? data.currentStatus.isQuantBlue : true;
-        quantColor = isBlue ? '#2563eb' : '#eab308';
+        const quantColor = isBlue ? '#2563eb' : '#eab308';
 
         quantSeries.applyOptions({
           color: quantColor,
@@ -1625,17 +1457,10 @@
         );
       }
 
-      // 5. Markers (BUY, TP, SL, EMA cross)
+      // 5. Markers
       candleSeries.setMarkers(data.markers || []);
 
-      // 6. Active Position Price Lines (if in trade)
-      if (tpPriceLine) candleSeries.removePriceLine(tpPriceLine);
-      if (slPriceLine) candleSeries.removePriceLine(slPriceLine);
-      if (entryPriceLine) candleSeries.removePriceLine(entryPriceLine);
-      tpPriceLine = null;
-      slPriceLine = null;
-      entryPriceLine = null;
-
+      // 6. Active Position Price Lines
       const pos = data.activePosition;
       if (pos && pos.inPosition) {
         entryPriceLine = candleSeries.createPriceLine({
@@ -1644,7 +1469,7 @@
           lineWidth: 2,
           lineStyle: LightweightCharts.LineStyle.Dotted,
           axisLabelVisible: true,
-          title: `ENTRY $${pos.entryPrice.toLocaleString()}`,
+          title: `ENTRY $${formatPrice(pos.entryPrice)}`,
         });
 
         tpPriceLine = candleSeries.createPriceLine({
@@ -1653,7 +1478,7 @@
           lineWidth: 2,
           lineStyle: LightweightCharts.LineStyle.Dashed,
           axisLabelVisible: true,
-          title: `TP (+${data.takeProfitPct}%) $${pos.takeProfitPrice.toLocaleString()}`,
+          title: `TP $${formatPrice(pos.takeProfitPrice)}`,
         });
 
         slPriceLine = candleSeries.createPriceLine({
@@ -1662,11 +1487,10 @@
           lineWidth: 2,
           lineStyle: LightweightCharts.LineStyle.Dashed,
           axisLabelVisible: true,
-          title: `SL (-${data.stopLossPct}%) $${pos.stopLossPrice.toLocaleString()}`,
+          title: `SL $${formatPrice(pos.stopLossPrice)}`,
         });
       }
 
-      // Fit Content
       chart.timeScale().fitContent();
       updateHudDefault();
     }
@@ -1690,14 +1514,13 @@
       const qDot = document.getElementById('quantStatusDot');
       const qText = document.getElementById('quantStatusText');
       if (isV2) {
-        document.getElementById('quantTfRule').textContent = `Score Threshold: ${data.params.scoreThreshold}`;
+        document.getElementById('quantTfRule').textContent = `Target Skor: ${data.params.scoreThreshold}`;
         qCard.className = st.score >= data.params.scoreThreshold ? 'stat-card green' : st.score >= 50 ? 'stat-card yellow' : 'stat-card red';
         qDot.style.background = st.score >= data.params.scoreThreshold ? '#10b981' : st.score >= 50 ? '#eab308' : '#ef4444';
-        qText.textContent = `SCORE: ${st.score}`;
-        qText.style.color = st.score >= data.params.scoreThreshold ? '#34d399' : st.score >= 50 ? '#fde047' : '#f87171';
-        
-        document.getElementById('quantSmaVal').textContent = `R: ${st.factors.regime}, T: ${st.factors.trend}, RS: ${st.factors.relativeStrength}`;
-        document.getElementById('quantDistanceVal').textContent = `M: ${st.factors.momentum}, V: ${st.factors.volume}`;
+        qText.textContent = `SKOR: ${st.score}`;
+        qText.style.color = st.score >= data.params.scoreThreshold ? 'var(--green)' : st.score >= 50 ? 'var(--yellow)' : 'var(--red)';
+        document.getElementById('quantSmaVal').textContent = `Regime: ${st.factors.regime}, Trend: ${st.factors.trend}`;
+        document.getElementById('quantDistanceVal').textContent = `RS: ${st.factors.relativeStrength}, Vol: ${st.factors.volume}`;
       } else {
         document.getElementById('quantTfRule').textContent = currentTimeframe === '1d' ? 'SMA 30' : 'SMA 60';
         if (st.isQuantBlue) {
@@ -1722,7 +1545,7 @@
       // EMA Card
       const emaLabel1 = isV2 ? 'EMA20' : 'EMA13';
       const emaLabel2 = isV2 ? 'EMA50' : 'EMA21';
-      document.querySelector('.stat-card.green .stat-title').textContent = `${emaLabel1} / ${emaLabel2} Trend`;
+      document.getElementById('emaCardTitle').textContent = `${emaLabel1} / ${emaLabel2} Trend`;
       const e1 = isV2 ? st.ema20 : st.ema13;
       const e2 = isV2 ? st.ema50 : st.ema21;
 
@@ -1734,10 +1557,10 @@
       if (e1 && e2) {
         if (e1 > e2) {
           emaBadge.textContent = `${emaLabel1} > ${emaLabel2} (BULLISH)`;
-          emaBadge.style.color = '#34d399';
+          emaBadge.style.color = 'var(--green)';
         } else {
           emaBadge.textContent = `${emaLabel1} < ${emaLabel2} (BEARISH)`;
-          emaBadge.style.color = '#f87171';
+          emaBadge.style.color = 'var(--red)';
         }
       }
 
@@ -1748,15 +1571,15 @@
       const pCard = document.getElementById('positionCard');
       if (pos && pos.inPosition) {
         pCard.className = 'stat-card green';
-        pStatus.textContent = 'LONG ACTIVE (' + (pos.unrealizedPnlPct >= 0 ? '+' : '') + pos.unrealizedPnlPct + '%)';
-        pStatus.style.color = pos.unrealizedPnlPct >= 0 ? '#34d399' : '#f87171';
+        pStatus.textContent = 'LONG AKTIF (' + (pos.unrealizedPnlPct >= 0 ? '+' : '') + pos.unrealizedPnlPct + '%)';
+        pStatus.style.color = pos.unrealizedPnlPct >= 0 ? 'var(--green)' : 'var(--red)';
         pDet.innerHTML = `
           <span>Entry: <strong>$${formatPrice(pos.entryPrice)}</strong></span>
           <span style="margin-left:auto;">TP: <strong style="color:var(--green);">$${formatPrice(pos.takeProfitPrice)}</strong> &bull; SL: <strong style="color:var(--red);">$${formatPrice(pos.stopLossPrice)}</strong></span>
         `;
       } else {
         pCard.className = 'stat-card';
-        pStatus.textContent = 'FLAT (AWAITING SIGNAL)';
+        pStatus.textContent = 'FLAT (MENUNGGU SINYAL)';
         pStatus.style.color = 'var(--text-dim)';
         pDet.textContent = `Menunggu sinyal BUY sesuai aturan ${isV2 ? 'Multi-Factor' : 'Pine Script'}`;
       }
@@ -1765,7 +1588,7 @@
       const stats = data.stats;
       document.getElementById('winRateVal').innerHTML = `${stats.winRatePct}% <span style="font-size:13px; font-weight:500; color:var(--text-muted);">Win Rate</span>`;
       document.getElementById('totalPnlVal').textContent = (stats.totalPnlPct >= 0 ? '+' : '') + stats.totalPnlPct + '%';
-      document.getElementById('totalPnlVal').style.color = stats.totalPnlPct >= 0 ? '#34d399' : '#f87171';
+      document.getElementById('totalPnlVal').style.color = stats.totalPnlPct >= 0 ? 'var(--green)' : 'var(--red)';
       document.getElementById('tradeCountVal').textContent = `${stats.totalTrades} trades (${stats.winTrades}W / ${stats.lossTrades}L)`;
     }
 
@@ -1775,7 +1598,7 @@
       summaryText.textContent = `${(trades || []).length} trades`;
 
       if (!trades || !trades.length) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-dim);">Belum ada trade yang tereksekusi pada rentang waktu ini</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-dim);">Belum ada simulasi trade pada rentang waktu ini</td></tr>`;
         return;
       }
 
@@ -1784,20 +1607,20 @@
 
       tbody.innerHTML = trades.map((t) => {
         const isWin = t.pnlPct > 0;
-        const entryD = new Date(t.entryTime * 1000).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        const exitD = new Date(t.exitTime * 1000).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
+        const entryD = new Date(t.entryTime * 1000).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const exitD = new Date(t.exitTime * 1000).toLocaleDateString('id-ID', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
         let badge = '';
         if (isV2) {
-           const label = t.exitType || 'EXIT';
-           if (t.tp1Hit && label === 'TRAIL') badge = `<span class="badge-pill blue">TP1+TRAIL</span>`;
-           else if (label === 'BE') badge = `<span class="badge-pill yellow">BREAKEVEN</span>`;
-           else if (isWin) badge = `<span class="badge-pill blue">${label}</span>`;
-           else badge = `<span class="badge-pill red">${label}</span>`;
+          const label = t.exitType || 'EXIT';
+          if (t.tp1Hit && label === 'TRAIL') badge = `<span class="badge-pill blue">TP1+TRAIL</span>`;
+          else if (label === 'BE') badge = `<span class="badge-pill yellow">BREAKEVEN</span>`;
+          else if (isWin) badge = `<span class="badge-pill blue">${label}</span>`;
+          else badge = `<span class="badge-pill red">${label}</span>`;
         } else {
-           badge = t.exitType === 'TP'
-             ? `<span class="badge-pill blue">TP (+5%)</span>`
-             : `<span class="badge-pill red">SL (${t.pnlPct}%)</span>`;
+          badge = t.exitType === 'TP'
+            ? `<span class="badge-pill blue">TP (+5%)</span>`
+            : `<span class="badge-pill red">SL (${t.pnlPct}%)</span>`;
         }
 
         return `
@@ -1808,19 +1631,11 @@
             <td>${exitD}</td>
             <td>$${formatPrice(t.exitPrice)}</td>
             <td>${badge}</td>
-            <td style="color:${isWin ? '#34d399' : '#f87171'}; font-weight:700;">${isWin ? '+' : ''}${t.pnlPct}%</td>
-            <td>${t.durationBars} bars</td>
+            <td style="color:${isWin ? 'var(--green)' : 'var(--red)'}; font-weight:700;">${isWin ? '+' : ''}${t.pnlPct}%</td>
+            <td>${t.durationBars} bar</td>
           </tr>
         `;
       }).join('');
-    }
-
-    function formatPrice(val) {
-      if (val === null || val === undefined || isNaN(val)) return '-';
-      const num = Number(val);
-      if (num >= 1000) return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      if (num >= 1) return num.toFixed(3);
-      return num.toFixed(6);
     }
 
     function formatVol(val) {
@@ -1832,62 +1647,30 @@
       return n.toFixed(0);
     }
 
-    // Auto-refresh every 1 hour
-    setInterval(() => {
-      loadChartData();
-    }, 3600000); // 1 hour
+    // Auto-refresh every 2 minutes
+    setInterval(loadChartData, 120000);
 
     // Boot
     window.addEventListener('DOMContentLoaded', async () => {
-      // Parse query params (e.g. ?symbol=SOLUSD&timeframe=4h)
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('symbol')) currentSymbol = urlParams.get('symbol').toUpperCase();
       if (urlParams.get('timeframe')) currentTimeframe = urlParams.get('timeframe').toLowerCase();
+      if (urlParams.get('algo')) {
+        const algoSelect = document.getElementById('algorithmSelect');
+        if (algoSelect) algoSelect.value = urlParams.get('algo');
+      }
 
+      document.getElementById('selectedTokenDisplay').textContent = currentSymbol;
       document.getElementById('tf4h').classList.toggle('active', currentTimeframe === '4h');
       document.getElementById('tf1d').classList.toggle('active', currentTimeframe === '1d');
       document.getElementById('statTimeframeLabel').textContent = `Timeframe: ${currentTimeframe.toUpperCase()}`;
       document.getElementById('quantTfRule').textContent = currentTimeframe === '1d' ? 'SMA 30' : 'SMA 60';
 
+      toggleAlgoInputs();
       initChart();
       await loadTokens();
       await loadChartData();
     });
   </script>
-
-    <script>
-      // Theme initialization
-      function initTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light' || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-          document.documentElement.classList.add('light');
-          updateThemeIcon(true);
-        } else {
-          updateThemeIcon(false);
-        }
-      }
-
-      function toggleTheme() {
-        const isLight = document.documentElement.classList.toggle('light');
-        localStorage.setItem('theme', isLight ? 'light' : 'dark');
-        updateThemeIcon(isLight);
-        
-        // Dispatch custom event so chart can update
-        window.dispatchEvent(new CustomEvent('themeChanged', { detail: { isLight } }));
-      }
-
-      function updateThemeIcon(isLight) {
-        const icon = document.getElementById('themeIcon');
-        if (!icon) return;
-        if (isLight) {
-          icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Moon
-        } else {
-          icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'; // Sun
-        }
-      }
-      
-      initTheme();
-    </script>
-    
 </body>
 </html>
