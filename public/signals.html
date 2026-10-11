@@ -83,10 +83,8 @@
       border-radius: 12px;
       padding: 14px 18px;
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
+      flex-direction: column;
+      gap: 12px;
       box-shadow: var(--shadow-sm);
     }
 
@@ -94,7 +92,7 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
     }
 
@@ -102,6 +100,21 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .algo-selectors-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .search-sort-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
       flex-wrap: wrap;
     }
 
@@ -118,6 +131,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      white-space: nowrap;
     }
 
     .chip-btn:hover {
@@ -293,26 +307,137 @@
     }
 
     @media (max-width: 768px) {
+      main {
+        padding: 12px;
+        gap: 12px;
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .filter-panel {
+        padding: 12px;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
       .table-container {
         display: none;
       }
       .mobile-cards-view {
         display: flex;
-      }
-      .filter-panel {
-        flex-direction: column;
-        align-items: stretch;
+        padding: 8px;
       }
       .filter-row-top {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
+        width: 100%;
+      }
+      .filter-chips-group {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .filter-chips-group .filter-label-status {
+        width: 100%;
+        margin-bottom: 2px;
+      }
+      .filter-chips-group .chip-btn {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 0;
+        justify-content: center;
+        padding: 6px 8px;
+        font-size: 11px;
+      }
+      #btnFilterFavorites {
+        width: 100%;
+        justify-content: center;
+      }
+      .algo-selectors-group {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .algo-selectors-group select.custom-input {
+        width: 100% !important;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+      #modeFilterGroup {
+        width: 100%;
+      }
+      #modeFilterGroup select {
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+      .control-group {
+        width: 100%;
+        display: flex;
+        box-sizing: border-box;
+      }
+      .control-group .btn-pill {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+      }
+      .search-sort-group {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+      .search-sort-group input.custom-input,
+      .search-sort-group select.custom-input {
+        width: 100% !important;
+        max-width: none !important;
+        box-sizing: border-box;
       }
       header {
         padding: 10px 14px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
       }
       .brand-wrap {
         width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .brand-wrap nav.app-nav {
+        margin-left: 0 !important;
+        width: 100%;
+        display: flex;
+      }
+      .brand-wrap nav.app-nav .nav-link {
+        flex: 1;
+        justify-content: center;
+      }
+      .header-actions {
+        width: 100%;
+        display: flex;
+        align-items: center;
         justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .filter-chips-group .chip-btn {
+        font-size: 11px;
+        padding: 6px 4px;
+      }
+      .card-header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
       }
     }
 
@@ -379,7 +504,7 @@
       </nav>
     </div>
 
-    <div style="display:flex; align-items:center; gap:10px;">
+    <div class="header-actions" style="display:flex; align-items:center; gap:10px;">
       <!-- Theme Toggle -->
       <button id="themeToggleBtn" class="btn-pill" style="border:1px solid var(--btn-border); background:var(--btn-bg);" onclick="toggleTheme()" title="Ganti Tema">
         <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg>
@@ -440,7 +565,7 @@
       <div class="filter-row-top">
         <!-- Status Filter Chips -->
         <div class="filter-chips-group">
-          <span style="font-size:12px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Status:</span>
+          <span class="filter-label-status" style="font-size:12px; font-weight:700; color:var(--text-dim); text-transform:uppercase;">Status:</span>
           <button class="chip-btn active" id="chip-status-all" onclick="setStatusFilter('all')">
             Semua <span class="chip-counter" id="count-all">0</span>
           </button>
@@ -463,7 +588,7 @@
         <div style="flex:1;"></div>
 
         <!-- Algorithm & Mode Selector -->
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div class="algo-selectors-group">
           <select id="algorithmFilter" class="custom-input" onchange="toggleAlgoFilter(); loadSignals()">
             <option value="v1">Algoritma: v1 (Pine Script)</option>
             <option value="v2">Algoritma: v2 (Multi-Factor)</option>
@@ -487,18 +612,20 @@
           <button id="tf1d" class="btn-pill" onclick="setTimeframeFilter('1d')">1D Macro</button>
         </div>
 
-        <!-- Search Input -->
-        <div style="display:flex; align-items:center; gap:8px; flex:1; max-width:320px;">
-          <input type="text" id="searchInput" class="custom-input" placeholder="Cari koin (BTC, ETH, SOL)..." oninput="applyFilters()" style="width:100%;">
-        </div>
+        <!-- Search & Sort Group -->
+        <div class="search-sort-group">
+          <div style="display:flex; align-items:center; gap:8px; flex:1;">
+            <input type="text" id="searchInput" class="custom-input" placeholder="Cari koin (BTC, ETH, SOL)..." oninput="applyFilters()" style="width:100%;">
+          </div>
 
-        <!-- Sort Select -->
-        <select id="sortSelect" class="custom-input" onchange="applyFilters()">
-          <option value="time_desc">Urutan: Sinyal Terbaru</option>
-          <option value="pnl_desc">Urutan: PnL % Tertinggi</option>
-          <option value="rank_asc">Urutan: Volume Rank (#1)</option>
-          <option value="win_desc">Urutan: Win Rate Tertinggi</option>
-        </select>
+          <!-- Sort Select -->
+          <select id="sortSelect" class="custom-input" onchange="applyFilters()">
+            <option value="time_desc">Urutan: Sinyal Terbaru</option>
+            <option value="pnl_desc">Urutan: PnL % Tertinggi</option>
+            <option value="rank_asc">Urutan: Volume Rank (#1)</option>
+            <option value="win_desc">Urutan: Win Rate Tertinggi</option>
+          </select>
+        </div>
       </div>
     </div>
 
