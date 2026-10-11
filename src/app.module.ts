@@ -14,6 +14,7 @@ import { ScreenerModule } from './api/screener/screener.module';
 import { AgentApiModule } from './api/agent/agent-api.module';
 import { ChartModule } from './api/chart/chart.module';
 import { DB_ENTITIES } from './database/database.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -26,8 +27,9 @@ import { DB_ENTITIES } from './database/database.module';
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
 
-    // Database
+    // Database & Caching
     DatabaseModule,
+    RedisModule,
 
     // Feature modules
     KrakenModule,
