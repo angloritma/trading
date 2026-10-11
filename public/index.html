@@ -1066,10 +1066,56 @@
       showToast('Semua gambar garis dihapus', 'info');
     }
 
+    function getEventTime(param) {
+      if (!param || !param.point) return null;
+      if (param.time) return param.time;
+      if (!chart || !latestResult || !latestResult.candles || latestResult.candles.length === 0) return null;
+
+      const candles = latestResult.candles;
+      const lastCandle = candles[candles.length - 1];
+      const xLast = chart.timeScale().timeToCoordinate(lastCandle.time);
+
+      let interval = 86400; // default 1d in seconds
+      if (candles.length > 1) {
+        const diff = lastCandle.time - candles[candles.length - 2].time;
+        if (diff > 0) interval = diff;
+      }
+
+      if (xLast !== null && param.point.x > xLast) {
+        const logicalLast = chart.timeScale().coordinateToLogical(xLast);
+        const logicalCurrent = chart.timeScale().coordinateToLogical(param.point.x);
+        if (logicalLast !== null && logicalCurrent !== null) {
+          const barsAhead = Math.max(1, Math.round(logicalCurrent - logicalLast));
+          return lastCandle.time + barsAhead * interval;
+        }
+      }
+
+      const firstCandle = candles[0];
+      const xFirst = chart.timeScale().timeToCoordinate(firstCandle.time);
+      if (xFirst !== null && param.point.x < xFirst) {
+        const logicalFirst = chart.timeScale().coordinateToLogical(xFirst);
+        const logicalCurrent = chart.timeScale().coordinateToLogical(param.point.x);
+        if (logicalFirst !== null && logicalCurrent !== null) {
+          const barsBehind = Math.min(-1, Math.round(logicalCurrent - logicalFirst));
+          return firstCandle.time + barsBehind * interval;
+        }
+      }
+
+      const logical = chart.timeScale().coordinateToLogical(param.point.x);
+      if (logical !== null) {
+        const idx = Math.max(0, Math.min(candles.length - 1, Math.round(logical)));
+        return candles[idx].time;
+      }
+
+      return null;
+    }
+
     function setupDrawingListeners() {
       if (!chart) return;
       chart.subscribeClick((param) => {
-        if (!param.point || !param.time) return;
+        if (!param || !param.point) return;
+        const time = getEventTime(param);
+        if (!time) return;
         const price = candleSeries.coordinateToPrice(param.point.y);
         if (price === null) return;
 
@@ -1115,22 +1161,29 @@
             partialTrendLine = {
               type: currentDrawingMode,
               series: s,
-              time1: param.time,
+              time1: time,
               price1: price,
             };
-            s.setData([{ time: param.time, value: price }]);
+            s.setData([{ time: time, value: price }]);
           } else {
             isDrawing = false;
             let p1, p2;
             if (partialTrendLine.type === 'measure') {
               p1 = { time: partialTrendLine.time1, value: price };
-              p2 = { time: param.time, value: price };
+              p2 = { time: time, value: price };
             } else {
               p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
-              p2 = { time: param.time, value: price };
+              p2 = { time: time, value: price };
             }
-            if (p1.time !== p2.time) {
-              partialTrendLine.series.setData(p1.time > p2.time ? [p2, p1] : [p1, p2]);
+            if (p1.time === p2.time) {
+              const candles = latestResult && latestResult.candles ? latestResult.candles : [];
+              const interval = (candles.length > 1 && candles[1].time - candles[0].time > 0) ? (candles[1].time - candles[0].time) : 86400;
+              p2.time = p1.time + interval;
+            }
+            partialTrendLine.series.setData(p1.time > p2.time ? [p2, p1] : [p1, p2]);
+            if (partialTrendLine.type === 'measure') {
+              const pct = ((price - partialTrendLine.price1) / partialTrendLine.price1) * 100;
+              partialTrendLine.series.applyOptions({ title: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' });
             }
             customDrawings.push({ type: partialTrendLine.type, series: partialTrendLine.series });
             partialTrendLine = null;
@@ -1141,20 +1194,25 @@
 
       chart.subscribeCrosshairMove((param) => {
         if ((currentDrawingMode === 'trendline' || currentDrawingMode === 'measure') && isDrawing && partialTrendLine) {
-          if (!param.point || !param.time) return;
+          if (!param || !param.point) return;
+          const time = getEventTime(param);
+          if (!time) return;
           const price = candleSeries.coordinateToPrice(param.point.y);
           if (price === null) return;
           let p1, p2;
           if (partialTrendLine.type === 'measure') {
             p1 = { time: partialTrendLine.time1, value: price };
-            p2 = { time: param.time, value: price };
+            p2 = { time: time, value: price };
           } else {
             p1 = { time: partialTrendLine.time1, value: partialTrendLine.price1 };
-            p2 = { time: param.time, value: price };
+            p2 = { time: time, value: price };
           }
-          if (p1.time !== p2.time) {
-            partialTrendLine.series.setData(p1.time > p2.time ? [p2, p1] : [p1, p2]);
+          if (p1.time === p2.time) {
+            const candles = latestResult && latestResult.candles ? latestResult.candles : [];
+            const interval = (candles.length > 1 && candles[1].time - candles[0].time > 0) ? (candles[1].time - candles[0].time) : 86400;
+            p2.time = p1.time + interval;
           }
+          partialTrendLine.series.setData(p1.time > p2.time ? [p2, p1] : [p1, p2]);
           if (partialTrendLine.type === 'measure') {
             const pct = ((price - partialTrendLine.price1) / partialTrendLine.price1) * 100;
             partialTrendLine.series.applyOptions({ title: (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' });
