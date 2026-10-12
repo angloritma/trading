@@ -1050,6 +1050,33 @@
     let partialTrendLine = null;
     let drawingManager = null;
 
+    function adaptChartForDrawing(chart, series) {
+      if (!chart || !series) return;
+      if (!series.getPane) {
+        series.getPane = () => ({
+          paneIndex: () => 0,
+          getHTMLElement: () => (chart.chartElement ? chart.chartElement() : null)
+        });
+      }
+      if (chart.priceScale) {
+        const origPriceScale = chart.priceScale.bind(chart);
+        chart.priceScale = (id) => {
+          const ps = origPriceScale(id);
+          if (ps && !ps.width) {
+            ps.width = () => (id === 'left' ? 0 : 65);
+          }
+          return ps;
+        };
+      }
+      if (chart.timeScale) {
+        const ts = chart.timeScale();
+        if (ts) {
+          if (!ts.height) ts.height = () => 26;
+          if (!ts.width) ts.width = () => (chart.chartElement ? chart.chartElement().clientWidth : 800);
+        }
+      }
+    }
+
     function initDrawingManager() {
       if (!chart || !candleSeries) return;
       if (drawingManager) {
@@ -1059,6 +1086,7 @@
 
       if (typeof LightweightChartsDrawing !== 'undefined' && LightweightChartsDrawing.DrawingManager) {
         try {
+          adaptChartForDrawing(chart, candleSeries);
           drawingManager = new LightweightChartsDrawing.DrawingManager(chart, candleSeries, {
             magnet: 'weak',
             bars: () => (latestResult && latestResult.candles) ? latestResult.candles : []
