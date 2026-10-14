@@ -13,6 +13,7 @@ import { TokensModule } from './api/tokens/tokens.module';
 import { ScreenerModule } from './api/screener/screener.module';
 import { AgentApiModule } from './api/agent/agent-api.module';
 import { ChartModule } from './api/chart/chart.module';
+import { MacroModule } from './api/macro/macro.module';
 import { DB_ENTITIES } from './database/database.module';
 import { RedisModule } from './redis/redis.module';
 
@@ -42,6 +43,7 @@ import { RedisModule } from './redis/redis.module';
     ScreenerModule,
     AgentApiModule,
     ChartModule,
+    MacroModule,
   ],
 })
 export class AppModule {}

@@ -40,6 +40,12 @@ async function bootstrap() {
   app.use('/signals', (_req: express.Request, res: express.Response) => {
     res.sendFile(join(publicDir, 'signals.html'));
   });
+  app.use('/macro', (_req: express.Request, res: express.Response) => {
+    res.sendFile(join(publicDir, 'macro.html'));
+  });
+  app.use('/calendar', (_req: express.Request, res: express.Response) => {
+    res.sendFile(join(publicDir, 'macro.html'));
+  });
 
   await app.listen(config.port);
   logger.log(`🚀 Trading Dashboard running on http://localhost:${config.port}/api`);

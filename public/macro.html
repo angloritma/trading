@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalender Makroekonomi — Angloritma Quant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    main {
+      flex: 1;
+      padding: 20px;
+      max-width: 1560px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(16, 185, 129, 0.08));
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(8px);
+    }
+
+    html.light .hero-banner {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(5, 150, 105, 0.05));
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .hero-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hero-desc {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-main);
+      opacity: 0.9;
+      max-width: 720px;
+    }
+
+    /* Countdown Box */
+    .countdown-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .countdown-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+    }
+
+    .countdown-digits {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cd-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cd-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 800;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--blue);
+      padding: 6px 10px;
+      border-radius: 8px;
+      min-width: 52px;
+      text-align: center;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .cd-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .cd-colon {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-dim);
+      margin-top: -16px;
+    }
+
+    /* KPI Highlights */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+
+    .kpi-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .kpi-box.blue::before { background: var(--blue); }
+    .kpi-box.green::before { background: var(--green); }
+    .kpi-box.orange::before { background: var(--orange); }
+    .kpi-box.yellow::before { background: var(--yellow); }
+
+    .kpi-box-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kpi-box-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .kpi-box-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Educational Section */
+    .edu-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .edu-header {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      background: var(--btn-bg);
+    }
+
+    .edu-header:hover {
+      background: var(--card-bg-elevated);
+    }
+
+    .edu-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edu-content {
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .edu-card {
+      background: var(--card-bg-elevated);
+      border: 1px solid var(--card-border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .edu-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .edu-card p {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .edu-card .impact-bullet {
+      font-size: 11px;
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--card-border);
+      color: var(--text-main);
+    }
+
+    /* Filter & Controls Panel */
+    .controls-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .chips-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-btn {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .chip-btn:hover {
+      color: var(--text-main);
+      border-color: var(--blue);
+    }
+
+    .chip-btn.active {
+      background: var(--blue);
+      color: #ffffff;
+      border-color: var(--blue);
+      box-shadow: 0 2px 6px var(--blue-glow);
+    }
+
+    .search-input-wrap {
+      position: relative;
+      min-width: 260px;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-input-wrap input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-main);
+      padding: 7px 12px 7px 34px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .search-input-wrap input:focus {
+      border-color: var(--blue);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    /* Event Cards Grid */
+    .events-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .event-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .event-card:hover {
+      border-color: var(--btn-border);
+      box-shadow: var(--shadow-md);
+    }
+
+    .event-card.today {
+      border: 1.5px solid rgba(239, 68, 68, 0.45);
+      background: linear-gradient(to right, rgba(239, 68, 68, 0.04), transparent);
+    }
+
+    .event-card-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .event-identity {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .event-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg-elevated);
+    }
+
+    .event-title-wrap h4 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .event-badges-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-tag {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-tag.high {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-tag.medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-tag.today {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--red);
+      border: 1px solid var(--red);
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+
+    .badge-tag.upcoming {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--blue);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-tag.completed {
+      background: rgba(107, 114, 128, 0.15);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+
+    .event-time-chips {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    @media (max-width: 680px) {
+      .event-time-chips {
+        align-items: flex-start;
+        width: 100%;
+      }
+    }
+
+    .time-wib {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .time-utc {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Numbers Bar (Previous / Forecast / Actual) */
+    .event-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      background: var(--card-bg-elevated);
+      border: 1px solid var(--card-border-subtle);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .stat-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+    }
+
+    .stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .stat-val.actual {
+      color: var(--green);
+      font-size: 15px;
+    }
+
+    .stat-val.highlight {
+      color: var(--blue);
+    }
+
+    /* Impact Breakdown */
+    .crypto-impact-box {
+      background: rgba(59, 130, 246, 0.05);
+      border-left: 3px solid var(--blue);
+      border-radius: 4px 8px 8px 4px;
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .crypto-impact-title {
+      font-weight: 700;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .scenarios-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .scenarios-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scenario-item {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+
+    .scenario-item.bullish {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--text-main);
+    }
+
+    .scenario-item.bearish {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--text-main);
+    }
+
+    /* Actions Footer */
+    .event-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-top: 4px;
+      border-top: 1px solid var(--card-border-subtle);
+    }
+
+    .source-link {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .source-link:hover {
+      color: var(--blue);
+      text-decoration: underline;
+    }
+
+    .btn-cal {
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-cal:hover {
+      background: var(--card-bg-elevated);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Sticky Sub-Header on Mobile */
+    @media (max-width: 600px) {
+      main {
+        padding: 12px;
+        gap: 14px;
+      }
+      .hero-banner {
+        padding: 16px;
+      }
+      .hero-title {
+        font-size: 19px;
+      }
+      .cd-number {
+        font-size: 20px;
+        min-width: 42px;
+        padding: 4px 6px;
+      }
+      .brand-wrap nav.app-nav {
+        width: 100%;
+        margin-left: 0 !important;
+      }
+      .brand-wrap nav.app-nav .nav-link {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-logo">A</div>
+      <div class="brand-text">
+        <h1>Angloritma Macro <span class="badge-pine">Economic Calendar</span></h1>
+        <p>Jadwal Rilis Data Makroekonomi AS: CPI, PPI, FOMC Suku Bunga & NFP</p>
+      </div>
+
+      <nav class="app-nav" style="margin-left: 12px;">
+        <a href="/chart" class="nav-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          Chart Interaktif
+        </a>
+        <a href="/signals" class="nav-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+          Sinyal BUY
+        </a>
+        <a href="/macro" class="nav-link active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Kalender Makro
+        </a>
+      </nav>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px;">
+      <!-- Theme Toggle -->
+      <button id="themeToggleBtn" class="btn-pill" style="border:1px solid var(--btn-border); background:var(--btn-bg);" onclick="toggleTheme()" title="Ganti Tema">
+        <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg>
+      </button>
+
+      <!-- Export ICS Button -->
+      <button onclick="downloadCalendarIcs()" class="btn-outline" title="Download Kalender (.ics) ke HP / Google Calendar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Ekspor .ICS
+      </button>
+
+      <!-- Refresh -->
+      <button onclick="loadMacroData()" class="btn-action" title="Segarkan Data Makro">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+        Segarkan
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Countdown Banner -->
+    <section class="hero-banner" id="heroBanner">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-tag" id="heroTag">
+            <span>🔥</span> <span id="heroTagText">Event Terdekat Berikutnya</span>
+          </div>
+          <h2 class="hero-title" id="heroTitle">Memuat jadwal makroekonomi...</h2>
+          <div class="hero-meta">
+            <span id="heroDate">📅 -</span>
+            <span id="heroTimeWib">⏰ - WIB</span>
+            <span id="heroImpact" class="badge-tag high">HIGH IMPACT</span>
+          </div>
+          <p class="hero-desc" id="heroDesc">
+            Pantau rilis data makroekonomi penting Amerika Serikat yang secara langsung mempengaruhi kebijakan moneter suku bunga The Fed dan likuiditas pasar aset kripto.
+          </p>
+        </div>
+
+        <div class="countdown-card">
+          <div class="countdown-label">Hitung Mundur Waktu Rilis</div>
+          <div class="countdown-digits" id="countdownBox">
+            <div class="cd-unit">
+              <span class="cd-number" id="cdDays">00</span>
+              <span class="cd-label">Hari</span>
+            </div>
+            <span class="cd-colon">:</span>
+            <div class="cd-unit">
+              <span class="cd-number" id="cdHours">00</span>
+              <span class="cd-label">Jam</span>
+            </div>
+            <span class="cd-colon">:</span>
+            <div class="cd-unit">
+              <span class="cd-number" id="cdMinutes">00</span>
+              <span class="cd-label">Menit</span>
+            </div>
+            <span class="cd-colon">:</span>
+            <div class="cd-unit">
+              <span class="cd-number" id="cdSeconds">00</span>
+              <span class="cd-label">Detik</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; width:100%; justify-content:center; margin-top:4px;">
+            <a id="heroGoogleCalBtn" href="#" target="_blank" class="btn-cal" style="flex:1; justify-content:center;">
+              📅 Tambah ke Google Calendar
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Indicators KPI Grid -->
+    <section class="kpi-row">
+      <div class="kpi-box blue">
+        <div class="kpi-box-title">
+          <span>🏛️ Target Suku Bunga Fed</span>
+          <span class="badge-tag upcoming" style="font-size:10px;">Fed Funds</span>
+        </div>
+        <div class="kpi-box-value" id="kpiFedRate">4.75% - 5.00%</div>
+        <div class="kpi-box-sub" id="kpiNextFomc">Next FOMC: 28 Okt 2026 (-25 bps cut)</div>
+      </div>
+
+      <div class="kpi-box orange">
+        <div class="kpi-box-title">
+          <span>🛒 Inflasi Konsumen (CPI)</span>
+          <span class="badge-tag high" style="font-size:10px;">YoY</span>
+        </div>
+        <div class="kpi-box-value" id="kpiCpi">2.4% YoY</div>
+        <div class="kpi-box-sub" id="kpiNextCpi">Next CPI: 10 Nov 2026 (Exp 2.3%)</div>
+      </div>
+
+      <div class="kpi-box yellow">
+        <div class="kpi-box-title">
+          <span>🏭 Inflasi Produsen (PPI)</span>
+          <span class="badge-tag today" style="font-size:10px;">Hari Ini</span>
+        </div>
+        <div class="kpi-box-value" id="kpiPpi">1.6% Exp</div>
+        <div class="kpi-box-sub" id="kpiNextPpi">Rilis: 15 Okt 2026 (19:30 WIB)</div>
+      </div>
+
+      <div class="kpi-box green">
+        <div class="kpi-box-title">
+          <span>💼 Tenaga Kerja (NFP)</span>
+          <span class="badge-tag upcoming" style="font-size:10px;">BLS</span>
+        </div>
+        <div class="kpi-box-value" id="kpiNfp">+254K / 4.1%</div>
+        <div class="kpi-box-sub" id="kpiNextNfp">Next NFP: 06 Nov 2026</div>
+      </div>
+    </section>
+
+    <!-- Educational Guide (Collapsible) -->
+    <section class="edu-panel">
+      <div class="edu-header" onclick="toggleEduPanel()">
+        <h3>
+          <span>💡</span> Panduan Trader Kripto: Mengapa Data Makroekonomi Sangat Berpengaruh?
+        </h3>
+        <span id="eduToggleIcon" style="font-size:16px; color:var(--text-dim); transition: transform 0.2s ease;">▼</span>
+      </div>
+      <div class="edu-content" id="eduContent">
+        <div class="edu-card">
+          <div class="edu-card-title">🏛️ FOMC & Suku Bunga (Fed Rate)</div>
+          <p>
+            Suku bunga acuan menentukan biaya modal global. Ketika The Fed memangkas suku bunga (Rate Cut), imbal hasil obligasi AS (Treasury Yield) menurun dan pasokan uang melonggar. Investor mencari return lebih tinggi di pasar saham dan crypto.
+          </p>
+          <div class="impact-bullet">
+            🟢 <strong>Rate Cut:</strong> Sangat Bullish untuk Bitcoin & Altcoins.<br>
+            🔴 <strong>Rate Hike / Hold:</strong> Likuiditas mengetat, memicu koreksi aset berisiko.
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-card-title">🛒 CPI (Consumer Price Index)</div>
+          <p>
+            Indikator inflasi tingkat konsumen yang paling sensitif. The Fed memiliki target inflasi jangka panjang di 2.0%. Jika CPI turun mendekati target, The Fed memiliki keleluasaan penuh untuk memangkas suku bunga.
+          </p>
+          <div class="impact-bullet">
+            🟢 <strong>CPI < Forecast:</strong> Inflasi mendingin -> Bullish Crypto.<br>
+            🔴 <strong>CPI > Forecast:</strong> Inflasi membandel -> Bearish Crypto.
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-card-title">🏭 PPI (Producer Price Index)</div>
+          <p>
+            Indeks harga produsen (grosir) sebelum barang dijual ke konsumen akhir. PPI adalah <em>leading indicator</em>: jika harga di tingkat pabrik/produsen turun, CPI konsumen dalam beberapa minggu ke depan kemungkinan besar ikut melandai.
+          </p>
+          <div class="impact-bullet">
+            🟢 <strong>PPI Rendah:</strong> Mengonfirmasi tekanan inflasi dari suplai mereda.
+          </div>
+        </div>
+
+        <div class="edu-card">
+          <div class="edu-card-title">💼 NFP & Tingkat Pengangguran</div>
+          <p>
+            Mandat ganda The Fed selain inflasi adalah stabilitas tenaga kerja. Jika sektor tenaga kerja terlalu melemah tajam, The Fed terpaksa mempercepat pemangkasan suku bunga untuk mencegah resesi ekonomi.
+          </p>
+          <div class="impact-bullet">
+            🟢 <strong>Ekonomi Stabil (Soft Landing):</strong> Lingkungan paling ideal bagi pasar bull run.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Toolbar Panel -->
+    <section class="controls-panel">
+      <div class="controls-row">
+        <!-- Category Filter Chips -->
+        <div class="chips-group" id="categoryChips">
+          <button class="chip-btn active" data-cat="ALL" onclick="setCategoryFilter('ALL')">🌐 Semua</button>
+          <button class="chip-btn" data-cat="FOMC" onclick="setCategoryFilter('FOMC')">🏛️ FOMC Suku Bunga</button>
+          <button class="chip-btn" data-cat="CPI" onclick="setCategoryFilter('CPI')">🛒 CPI (Inflasi)</button>
+          <button class="chip-btn" data-cat="PPI" onclick="setCategoryFilter('PPI')">🏭 PPI (Produsen)</button>
+          <button class="chip-btn" data-cat="PCE" onclick="setCategoryFilter('PCE')">🎯 Core PCE</button>
+          <button class="chip-btn" data-cat="NFP" onclick="setCategoryFilter('NFP')">💼 NFP Tenaga Kerja</button>
+          <button class="chip-btn" data-cat="GDP" onclick="setCategoryFilter('GDP')">📈 GDP</button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-input-wrap">
+          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="macroSearchInput" placeholder="Cari event, periode, atau dampak..." oninput="handleSearchInput()">
+        </div>
+      </div>
+
+      <div class="controls-row" style="border-top: 1px solid var(--card-border-subtle); padding-top: 10px;">
+        <!-- Timeframe Filter -->
+        <div class="chips-group" id="timeframeChips">
+          <span style="font-size:12px; color:var(--text-dim); font-weight:600; margin-right:4px;">Waktu:</span>
+          <button class="chip-btn active" data-tf="upcoming" onclick="setTimeframeFilter('upcoming')">⏳ Akan Datang</button>
+          <button class="chip-btn" data-tf="today" onclick="setTimeframeFilter('today')">🔴 Hari Ini</button>
+          <button class="chip-btn" data-tf="month" onclick="setTimeframeFilter('month')">📅 Bulan Ini (Okt 2026)</button>
+          <button class="chip-btn" data-tf="past" onclick="setTimeframeFilter('past')">📜 Riwayat Selesai</button>
+          <button class="chip-btn" data-tf="all" onclick="setTimeframeFilter('all')">Semua Jadwal</button>
+        </div>
+
+        <div style="font-size:12px; color:var(--text-dim);" id="resultCountLabel">
+          Menampilkan 0 event
+        </div>
+      </div>
+    </section>
+
+    <!-- Events List Container -->
+    <section class="events-grid" id="eventsContainer">
+      <!-- Injected by JavaScript -->
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p>Memuat kalender makroekonomi...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/common.js"></script>
+  <script>
+    // State management
+    let macroEvents = [];
+    let macroSummary = null;
+    let currentCategory = 'ALL';
+    let currentTimeframe = 'upcoming';
+    let currentSearch = '';
+    let countdownInterval = null;
+
+    // Fetch and initialize
+    async function loadMacroData() {
+      try {
+        const [eventsRes, summaryRes] = await Promise.all([
+          fetch(`/api/macro/events?category=${encodeURIComponent(currentCategory)}&timeframe=${encodeURIComponent(currentTimeframe)}&search=${encodeURIComponent(currentSearch)}`),
+          fetch('/api/macro/summary')
+        ]);
+
+        if (!eventsRes.ok || !summaryRes.ok) {
+          throw new Error('Gagal memuat API data makro');
+        }
+
+        const eventsData = await eventsRes.json();
+        macroEvents = eventsData.data || [];
+        macroSummary = await summaryRes.json();
+
+        updateHeroSection();
+        updateKpiCards();
+        renderEventCards();
+      } catch (err) {
+        console.error('Error loading macro data:', err);
+        showToast('Gagal memuat data kalender makro', 'error');
+        document.getElementById('eventsContainer').innerHTML = `
+          <div class="empty-state">
+            <p style="color:var(--red);">⚠️ Terjadi kendala saat memuat jadwal makro: ${err.message}</p>
+            <button onclick="loadMacroData()" class="btn-action">Coba Lagi</button>
+          </div>
+        `;
+      }
+    }
+
+    // Update Hero Countdown Section
+    function updateHeroSection() {
+      if (!macroSummary || !macroSummary.nextEvent) {
+        document.getElementById('heroTitle').textContent = 'Tidak ada event terdekat';
+        return;
+      }
+
+      const { event, remainingSeconds } = macroSummary.nextEvent;
+      const isToday = event.status === 'TODAY';
+
+      document.getElementById('heroTagText').textContent = isToday ? '🔴 RILIS HARI INI' : '🔥 Event Terdekat Berikutnya';
+      document.getElementById('heroTitle').textContent = event.title;
+      document.getElementById('heroDate').textContent = `📅 ${event.dateFormatted} (${event.period})`;
+      document.getElementById('heroTimeWib').textContent = `⏰ ${event.timeWib} / ${event.timeUtc}`;
+      document.getElementById('heroDesc').textContent = event.cryptoImpact.summary || event.description;
+
+      const impactEl = document.getElementById('heroImpact');
+      impactEl.className = `badge-tag ${event.impact === 'HIGH' ? 'high' : 'medium'}`;
+      impactEl.textContent = `${event.impact} IMPACT`;
+
+      // Set Google Calendar Link
+      const gcalUrl = buildGoogleCalendarUrl(event);
+      const gcalBtn = document.getElementById('heroGoogleCalBtn');
+      gcalBtn.href = gcalUrl;
+
+      // Start live countdown ticker
+      startCountdown(new Date(event.datetimeUtc).getTime());
+    }
+
+    // Live countdown ticker
+    function startCountdown(targetTimestamp) {
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      function tick() {
+        const now = Date.now();
+        const diffMs = targetTimestamp - now;
+
+        if (diffMs <= 0) {
+          document.getElementById('cdDays').textContent = '00';
+          document.getElementById('cdHours').textContent = '00';
+          document.getElementById('cdMinutes').textContent = '00';
+          document.getElementById('cdSeconds').textContent = '00';
+          return;
+        }
+
+        const totalSecs = Math.floor(diffMs / 1000);
+        const days = Math.floor(totalSecs / 86400);
+        const hours = Math.floor((totalSecs % 86400) / 3600);
+        const mins = Math.floor((totalSecs % 3600) / 60);
+        const secs = totalSecs % 60;
+
+        document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
+        document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
+        document.getElementById('cdMinutes').textContent = String(mins).padStart(2, '0');
+        document.getElementById('cdSeconds').textContent = String(secs).padStart(2, '0');
+      }
+
+      tick();
+      countdownInterval = setInterval(tick, 1000);
+    }
+
+    // Update KPI summary cards
+    function updateKpiCards() {
+      if (!macroSummary) return;
+
+      document.getElementById('kpiFedRate').textContent = macroSummary.currentFedRate || '4.75% - 5.00%';
+      if (macroSummary.nextFomc) {
+        document.getElementById('kpiNextFomc').textContent = `Next FOMC: ${macroSummary.nextFomc.dateFormatted} (Exp: ${macroSummary.nextFomc.forecast || '-'})`;
+      }
+
+      if (macroSummary.nextCpi) {
+        document.getElementById('kpiNextCpi').textContent = `Next CPI: ${macroSummary.nextCpi.dateFormatted} (Exp: ${macroSummary.nextCpi.forecast || '-'})`;
+      }
+
+      if (macroSummary.nextPpi) {
+        document.getElementById('kpiNextPpi').textContent = `Rilis: ${macroSummary.nextPpi.dateFormatted} (${macroSummary.nextPpi.timeWib})`;
+      }
+
+      if (macroSummary.nextNfp) {
+        document.getElementById('kpiNextNfp').textContent = `Next NFP: ${macroSummary.nextNfp.dateFormatted}`;
+      }
+    }
+
+    // Render Event Cards List
+    function renderEventCards() {
+      const container = document.getElementById('eventsContainer');
+      document.getElementById('resultCountLabel').textContent = `Menampilkan ${macroEvents.length} event`;
+
+      if (!macroEvents || macroEvents.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <p>Tidak ada jadwal yang cocok dengan filter "${currentCategory}" (${currentTimeframe}).</p>
+            <button onclick="resetFilters()" class="btn-outline">Reset Filter</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = macroEvents.map(event => {
+        const isToday = event.status === 'TODAY';
+        const isCompleted = event.status === 'COMPLETED';
+        const gcalUrl = buildGoogleCalendarUrl(event);
+
+        // Icon based on category
+        let icon = '📊';
+        if (event.category === 'FOMC') icon = '🏛️';
+        if (event.category === 'CPI') icon = '🛒';
+        if (event.category === 'PPI') icon = '🏭';
+        if (event.category === 'PCE') icon = '🎯';
+        if (event.category === 'NFP') icon = '💼';
+        if (event.category === 'GDP') icon = '📈';
+
+        // Status badge
+        let statusBadge = `<span class="badge-tag upcoming">⏳ Akan Datang</span>`;
+        if (isToday) {
+          statusBadge = `<span class="badge-tag today">🔴 HARI INI</span>`;
+        } else if (isCompleted) {
+          statusBadge = `<span class="badge-tag completed">✓ Selesai</span>`;
+        }
+
+        const impactBadge = event.impact === 'HIGH'
+          ? `<span class="badge-tag high">🔥 HIGH IMPACT</span>`
+          : `<span class="badge-tag medium">⚡ MEDIUM IMPACT</span>`;
+
+        return `
+          <article class="event-card ${isToday ? 'today' : ''}" id="event-${event.id}">
+            <div class="event-card-top">
+              <div class="event-identity">
+                <div class="event-icon-badge">${icon}</div>
+                <div class="event-title-wrap">
+                  <h4>
+                    <span>${escapeHtml(event.title)}</span>
+                    <span style="font-size:12px; font-weight:600; color:var(--text-dim);">(${escapeHtml(event.period)})</span>
+                  </h4>
+                  <div class="event-badges-wrap">
+                    ${statusBadge}
+                    ${impactBadge}
+                    <span class="badge-tag" style="background:var(--btn-bg); color:var(--text-muted); border:1px solid var(--btn-border);">${event.country} ${event.flag}</span>
+                    ${event.hasPressConference ? '<span class="badge-tag" style="background:rgba(147, 51, 234, 0.15); color:#a855f7; border:1px solid rgba(147, 51, 234, 0.3);">🎙️ Powell Press Conf</span>' : ''}
+                    ${event.isSep ? '<span class="badge-tag" style="background:rgba(6, 182, 212, 0.15); color:var(--cyan); border:1px solid rgba(6, 182, 212, 0.3);">📊 Dot Plot Projections</span>' : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div class="event-time-chips">
+                <div class="time-wib">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>${event.dateFormatted} • ${event.timeWib}</span>
+                </div>
+                <div class="time-utc">${event.timeUtc} (US Eastern 08:30 / 14:00)</div>
+              </div>
+            </div>
+
+            <!-- Numbers / Data Row -->
+            <div class="event-stats-bar">
+              <div class="stat-col">
+                <span class="stat-label">Sebelumnya (Prev)</span>
+                <span class="stat-val">${escapeHtml(event.previous || '-')}</span>
+              </div>
+              <div class="stat-col">
+                <span class="stat-label">Konsensus / Forecast</span>
+                <span class="stat-val highlight">${escapeHtml(event.forecast || 'Belum ada konsensus')}</span>
+              </div>
+              <div class="stat-col">
+                <span class="stat-label">Hasil Aktual (Rilis)</span>
+                <span class="stat-val ${event.actual ? 'actual' : ''}">${escapeHtml(event.actual || (isCompleted ? 'Dipublikasikan' : 'Menunggu Rilis'))}</span>
+              </div>
+            </div>
+
+            <!-- Crypto Impact Analysis -->
+            <div class="crypto-impact-box">
+              <div class="crypto-impact-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Analisis Dampak Pasar Crypto & Bitcoin:
+              </div>
+              <div style="color:var(--text-main); font-size:12px;">${escapeHtml(event.cryptoImpact.summary || event.description)}</div>
+              
+              <div class="scenarios-grid">
+                <div class="scenario-item bullish">
+                  <strong style="color:var(--green);">🟢 Skenario Bullish:</strong> ${escapeHtml(event.cryptoImpact.bullishScenario)}
+                </div>
+                <div class="scenario-item bearish">
+                  <strong style="color:var(--red);">🔴 Skenario Bearish:</strong> ${escapeHtml(event.cryptoImpact.bearishScenario)}
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer & Actions -->
+            <div class="event-actions">
+              <div>
+                <a href="${event.sourceUrl || '#'}" target="_blank" class="source-link">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  Sumber Resmi: ${escapeHtml(event.source)}
+                </a>
+              </div>
+
+              <div style="display:flex; gap:8px;">
+                <a href="${gcalUrl}" target="_blank" class="btn-cal" title="Simpan pengingat jadwal ke Google Calendar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Google Calendar
+                </a>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // Google Calendar Link Builder
+    function buildGoogleCalendarUrl(event) {
+      const title = encodeURIComponent(`[Macro] ${event.title}`);
+      const details = encodeURIComponent(
+        `Jadwal Rilis Makroekonomi AS (${event.period})\n` +
+        `Waktu Indonesia: ${event.timeWib}\n` +
+        `Forecast: ${event.forecast || '-'}\n` +
+        `Previous: ${event.previous || '-'}\n\n` +
+        `Dampak ke Crypto: ${event.cryptoImpact.summary}\n` +
+        `Sumber: ${event.source}`
+      );
+      
+      const startTime = new Date(event.datetimeUtc);
+      const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // 1 hour duration
+
+      const formatGCalTime = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+      const dates = `${formatGCalTime(startTime)}/${formatGCalTime(endTime)}`;
+
+      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=United+States`;
+    }
+
+    // Download ICS Calendar file
+    function downloadCalendarIcs() {
+      if (!macroEvents || macroEvents.length === 0) {
+        showToast('Tidak ada event untuk diekspor', 'warn');
+        return;
+      }
+
+      let icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Angloritma//Macro Calendar//ID',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'X-WR-CALNAME:Angloritma Kalender Makro',
+        'X-WR-TIMEZONE:Asia/Jakarta'
+      ];
+
+      const formatIcsDate = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+
+      macroEvents.forEach(evt => {
+        const start = new Date(evt.datetimeUtc);
+        const end = new Date(start.getTime() + 3600000);
+        icsContent.push(
+          'BEGIN:VEVENT',
+          `UID:${evt.id}@angloritma.quant`,
+          `DTSTAMP:${formatIcsDate(new Date())}`,
+          `DTSTART:${formatIcsDate(start)}`,
+          `DTEND:${formatIcsDate(end)}`,
+          `SUMMARY:[Macro] ${evt.title}`,
+          `DESCRIPTION:${evt.period} - ${evt.timeWib}. Forecast: ${evt.forecast || '-'}. Dampak: ${evt.cryptoImpact.summary.replace(/\n/g, ' ')}`,
+          `LOCATION:United States`,
+          'STATUS:CONFIRMED',
+          'END:VEVENT'
+        );
+      });
+
+      icsContent.push('END:VCALENDAR');
+      const blob = new Blob([icsContent.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `angloritma-macro-calendar-2026.ics`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('File kalender .ICS berhasil diunduh! Buka file untuk menyinkronkan ke HP/Google Calendar.', 'success');
+    }
+
+    // Filters handling
+    function setCategoryFilter(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('#categoryChips .chip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-cat') === cat);
+      });
+      loadMacroData();
+    }
+
+    function setTimeframeFilter(tf) {
+      currentTimeframe = tf;
+      document.querySelectorAll('#timeframeChips .chip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-tf') === tf);
+      });
+      loadMacroData();
+    }
+
+    let searchTimer = null;
+    function handleSearchInput() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        currentSearch = document.getElementById('macroSearchInput').value.trim();
+        loadMacroData();
+      }, 250);
+    }
+
+    function resetFilters() {
+      currentCategory = 'ALL';
+      currentTimeframe = 'upcoming';
+      currentSearch = '';
+      document.getElementById('macroSearchInput').value = '';
+      setCategoryFilter('ALL');
+      setTimeframeFilter('upcoming');
+    }
+
+    // Toggle Educational Accordion
+    function toggleEduPanel() {
+      const content = document.getElementById('eduContent');
+      const icon = document.getElementById('eduToggleIcon');
+      const isHidden = content.style.display === 'none';
+      content.style.display = isHidden ? 'grid' : 'none';
+      icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+    }
+
+    // Helper: HTML escape
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMacroData();
+    });
+  </script>
+</body>
+</html>
