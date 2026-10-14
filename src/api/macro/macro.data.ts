@@ -515,3 +515,4 @@ export const MACRO_EVENTS_RAW: Omit<MacroEvent, 'status'>[] = [
     isSep: false,
   },
 ];
+

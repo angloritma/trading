@@ -72,6 +72,11 @@
       50% { opacity: 0.6; }
     }
 
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
     .hero-title {
       font-size: 24px;
       font-weight: 800;
@@ -747,7 +752,13 @@
       </nav>
     </div>
 
-    <div style="display:flex; align-items:center; gap:10px;">
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <!-- Live Sync Status -->
+      <span id="syncStatusBadge" class="font-mono" style="font-size:11px; color:var(--text-dim); display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:6px; background:var(--card-bg-elevated); border:1px solid var(--card-border-subtle);" title="Data disinkronkan secara otomatis oleh background cron job setiap jam">
+        <span id="syncDot" style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green-glow);"></span>
+        <span id="syncStatusText">Feed: Otomatis</span>
+      </span>
+
       <!-- Theme Toggle -->
       <button id="themeToggleBtn" class="btn-pill" style="border:1px solid var(--btn-border); background:var(--btn-bg);" onclick="toggleTheme()" title="Ganti Tema">
         <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg>
@@ -759,10 +770,10 @@
         Ekspor .ICS
       </button>
 
-      <!-- Refresh -->
-      <button onclick="loadMacroData()" class="btn-action" title="Segarkan Data Makro">
+      <!-- Live Sync / Refresh Button -->
+      <button id="refreshBtn" onclick="triggerLiveSync()" class="btn-action" title="Sinkronkan data terbaru dari live economic feed">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
-        Segarkan
+        Sinkronkan
       </button>
     </div>
   </header>
@@ -984,6 +995,7 @@
         macroEvents = eventsData.data || [];
         macroSummary = await summaryRes.json();
 
+        updateSyncBadge();
         updateHeroSection();
         updateKpiCards();
         renderEventCards();
@@ -996,6 +1008,52 @@
             <button onclick="loadMacroData()" class="btn-action">Coba Lagi</button>
           </div>
         `;
+      }
+    }
+
+    // Trigger manual live sync with online feed
+    async function triggerLiveSync() {
+      const syncBtn = document.getElementById('refreshBtn');
+      const originalHtml = syncBtn.innerHTML;
+      try {
+        syncBtn.disabled = true;
+        syncBtn.style.opacity = '0.7';
+        syncBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation: spin 0.8s linear infinite;"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+          Menyinkronkan...
+        `;
+        const res = await fetch('/api/macro/sync', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✅ ${data.message}`, 'success');
+        } else {
+          showToast(`ℹ️ ${data.message || 'Sinkronisasi selesai'}`, 'info');
+        }
+        await loadMacroData();
+      } catch (e) {
+        showToast('Sinkronisasi gagal: ' + e.message, 'error');
+        await loadMacroData();
+      } finally {
+        syncBtn.disabled = false;
+        syncBtn.style.opacity = '1';
+        syncBtn.innerHTML = originalHtml;
+      }
+    }
+
+    // Update live sync indicator badge
+    function updateSyncBadge() {
+      const badgeText = document.getElementById('syncStatusText');
+      const badgeDot = document.getElementById('syncDot');
+      if (!badgeText || !badgeDot) return;
+
+      if (macroSummary && macroSummary.lastSyncTime) {
+        const syncDate = new Date(macroSummary.lastSyncTime);
+        const timeStr = syncDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        badgeText.textContent = `Sinkron: ${timeStr} WIB (${macroSummary.syncedEventsCount || 0} event)`;
+        badgeDot.style.background = macroSummary.lastSyncStatus === 'ERROR' ? 'var(--yellow)' : 'var(--green)';
+      } else {
+        badgeText.textContent = 'Auto-Cron: Aktif';
+        badgeDot.style.background = 'var(--green)';
       }
     }
 
@@ -1340,3 +1398,4 @@
   </script>
 </body>
 </html>
+

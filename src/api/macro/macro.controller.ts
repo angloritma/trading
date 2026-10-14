@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Post, Query } from '@nestjs/common';
 import { MacroService } from './macro.service';
 
 @Controller('macro')
@@ -46,4 +46,19 @@ export class MacroController {
   getCategories() {
     return this.macroService.getCategories();
   }
+
+  /**
+   * POST /api/macro/sync & GET /api/macro/sync
+   * Trigger manual sync with live economic calendar feed
+   */
+  @Get('sync')
+  syncGet() {
+    return this.macroService.syncFromFeed();
+  }
+
+  @Post('sync')
+  syncPost() {
+    return this.macroService.syncFromFeed();
+  }
 }
+

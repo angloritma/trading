@@ -49,4 +49,8 @@ export interface MacroSummary {
   nextCpi: MacroEvent | null;
   nextPpi: MacroEvent | null;
   nextNfp: MacroEvent | null;
+  lastSyncTime?: string;
+  lastSyncStatus?: 'SUCCESS' | 'ERROR' | 'IDLE';
+  syncedEventsCount?: number;
 }
+
