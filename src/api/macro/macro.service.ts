@@ -190,10 +190,6 @@ export class MacroService implements OnModuleInit {
         });
 
         if (candidates.length > 0) {
-          const match = candidates[0];
-          const unit = match.unit ? `${match.unit}` : '';
-          let changed = false;
-
           // Helper to check if value looks like a reasonable rate/number and not an unparsed raw index point
           const isSensibleRate = (val: any) => {
             if (val === null || val === undefined || val === '') return false;
@@ -210,10 +206,43 @@ export class MacroService implements OnModuleInit {
             return true;
           };
 
-          // Update actual: only if event did NOT have an actual value yet (e.g. today or upcoming event newly released)
+          // Score candidate matches so YoY / percentage rates are prioritized over raw index points
+          const scoreCandidate = (c: ExternalCalendarEvent) => {
+            const title = (c.title + ' ' + (c.indicator || '')).toLowerCase();
+            let score = 0;
+            if (event.category === 'PPI') {
+              if (title.includes('ppi yoy') || title.includes('producer prices change')) score += 50;
+              if (c.unit === '%') score += 20;
+              if (title.includes('ex food')) score -= 10;
+              if (isSensibleRate(c.actual)) score += 30;
+            } else if (event.category === 'CPI') {
+              if (title.includes('core inflation rate yoy') || title.includes('core cpi yoy')) score += 50;
+              if (c.unit === '%') score += 20;
+              if (isSensibleRate(c.actual)) score += 30;
+            } else if (event.category === 'NFP') {
+              if (title === 'non farm payrolls' || title === 'nonfarm payrolls') score += 50;
+              if (!title.includes('private')) score += 20;
+            } else if (event.category === 'FOMC') {
+              if (title.includes('fed interest rate decision') || title.includes('federal funds rate')) score += 50;
+            }
+            return score;
+          };
+
+          candidates.sort((a, b) => scoreCandidate(b) - scoreCandidate(a));
+
+          // Pick the best match that has sensible data
+          const match =
+            candidates.find(
+              (c) => isSensibleRate(c.actual) || isSensibleRate(c.forecast) || isSensibleRate(c.previous),
+            ) || candidates[0];
+
+          const unit = match.unit ? `${match.unit}` : '';
+          let changed = false;
+
+          // Update actual: if newly released or event did NOT have an actual value yet
           if (isSensibleRate(match.actual)) {
             const actualStr = `${match.actual}${unit ? (unit.startsWith('%') ? unit : ' ' + unit) : (event.category === 'NFP' ? 'K' : '%')}`;
-            if (!event.actual || event.actual.trim() === '-' || event.actual.trim() === '') {
+            if (!event.actual || event.actual.trim() === '-' || event.actual.trim() === '' || event.actual !== actualStr) {
               event.actual = actualStr;
               changed = true;
             }
@@ -240,6 +269,25 @@ export class MacroService implements OnModuleInit {
           if (changed) {
             updatedCount++;
             this.eventsState.set(id, event);
+
+            // Automatically synchronize into MACRO_HISTORY_DATA for the history popup modal
+            if (event.actual) {
+              const catKey = event.category as keyof typeof MACRO_HISTORY_DATA;
+              if (MACRO_HISTORY_DATA[catKey]) {
+                MACRO_HISTORY_DATA[catKey].currentValue = `${event.actual} (${event.period})`;
+                const targetPeriodStr = event.period.replace('Data ', '').trim().toLowerCase();
+                const histItem = MACRO_HISTORY_DATA[catKey].items.find(
+                  (item) => item.period.trim().toLowerCase() === targetPeriodStr,
+                );
+                if (histItem) {
+                  histItem.actual = event.actual;
+                  const num = parseFloat(event.actual.replace(/[^0-9.-]/g, ''));
+                  if (!isNaN(num)) histItem.actualNumeric = num;
+                  if (event.forecast) histItem.forecast = event.forecast;
+                  if (event.previous) histItem.previous = event.previous;
+                }
+              }
+            }
           }
         }
       }
@@ -434,7 +482,7 @@ export class MacroService implements OnModuleInit {
 
     const currentCpi = formatKpiVal(latestCpi?.actual, '2.6% YoY');
     const currentNfp = formatKpiVal(latestNfp?.actual, '+254K / 4.1%');
-    const currentPpi = formatKpiVal(latestPpi?.actual, '1.8% YoY');
+    const currentPpi = formatKpiVal(latestPpi?.actual, '6.3%');
 
     return {
       now: now.toISOString(),
