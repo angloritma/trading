@@ -434,7 +434,7 @@ export class MacroService implements OnModuleInit {
 
     const currentCpi = formatKpiVal(latestCpi?.actual, '2.6% YoY');
     const currentNfp = formatKpiVal(latestNfp?.actual, '+254K / 4.1%');
-    const currentPpi = formatKpiVal(latestPpi?.actual, '1.6% Exp');
+    const currentPpi = formatKpiVal(latestPpi?.actual, '1.8% YoY');
 
     return {
       now: now.toISOString(),

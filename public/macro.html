@@ -1249,11 +1249,11 @@
       <div class="kpi-box yellow" onclick="openHistoryModal('PPI')" title="Klik untuk melihat riwayat lengkap inflasi produsen AS (PPI)">
         <div class="kpi-box-title">
           <span>🏭 Inflasi Produsen (PPI)</span>
-          <span class="badge-tag today" style="font-size:10px;">Hari Ini</span>
+          <span class="badge-tag upcoming" style="font-size:10px;">BLS</span>
           <span class="kpi-click-hint">Riwayat ↗</span>
         </div>
-        <div class="kpi-box-value" id="kpiPpi">1.6% Exp</div>
-        <div class="kpi-box-sub" id="kpiNextPpi">Rilis: 15 Okt 2026 (19:30 WIB)</div>
+        <div class="kpi-box-value" id="kpiPpi">1.8% YoY</div>
+        <div class="kpi-box-sub" id="kpiNextPpi">Next PPI: 13 Nov 2026 (Exp 1.5%)</div>
       </div>
 
       <div class="kpi-box green" onclick="openHistoryModal('NFP')" title="Klik untuk melihat riwayat lengkap ketenagakerjaan (NFP)">
@@ -1629,7 +1629,7 @@
       }
 
       if (macroSummary.nextPpi) {
-        document.getElementById('kpiNextPpi').textContent = `Rilis: ${macroSummary.nextPpi.dateFormatted} (${macroSummary.nextPpi.timeWib})`;
+        document.getElementById('kpiNextPpi').textContent = `Next PPI: ${macroSummary.nextPpi.dateFormatted} (Exp: ${macroSummary.nextPpi.forecast || '-'})`;
       }
 
       if (macroSummary.nextNfp) {
