@@ -34,6 +34,9 @@ export interface MacroEvent {
 export interface MacroSummary {
   now: string;
   currentFedRate: string;
+  currentCpi?: string;
+  currentPpi?: string;
+  currentNfp?: string;
   nextEvent: {
     event: MacroEvent;
     remainingSeconds: number;

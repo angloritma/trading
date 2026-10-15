@@ -1238,7 +1238,7 @@
       <div class="kpi-box orange" onclick="openHistoryModal('CPI')" title="Klik untuk melihat riwayat lengkap inflasi konsumen AS (CPI)">
         <div class="kpi-box-title">
           <span>🛒 Inflasi Konsumen (CPI)</span>
-          <span class="badge-tag high" style="font-size:10px;">YoY</span>
+          <span class="badge-tag high" style="font-size:10px;">Headline YoY</span>
           <span class="kpi-click-hint">Riwayat ↗</span>
         </div>
         <div class="kpi-box-value" id="kpiCpi">2.4% YoY</div>
@@ -1609,6 +1609,16 @@
       if (!macroSummary) return;
 
       document.getElementById('kpiFedRate').textContent = macroSummary.currentFedRate || '4.75% - 5.00%';
+      if (macroSummary.currentCpi) {
+        document.getElementById('kpiCpi').textContent = macroSummary.currentCpi;
+      }
+      if (macroSummary.currentPpi) {
+        document.getElementById('kpiPpi').textContent = macroSummary.currentPpi;
+      }
+      if (macroSummary.currentNfp) {
+        document.getElementById('kpiNfp').textContent = macroSummary.currentNfp;
+      }
+
       if (macroSummary.nextFomc) {
         document.getElementById('kpiNextFomc').textContent = `Next FOMC: ${macroSummary.nextFomc.dateFormatted} (Exp: ${macroSummary.nextFomc.forecast || '-'})`;
       }

@@ -149,10 +149,25 @@ export class MacroService implements OnModuleInit {
           const tvTitle = (tv.title + ' ' + (tv.indicator || '')).toLowerCase();
 
           if (event.category === 'PPI') {
-            return tvTitle.includes('ppi yoy') || (tvTitle.includes('ppi') && tvTitle.includes('producer'));
+            return (
+              (tvTitle.includes('ppi yoy') || (tvTitle.includes('ppi') && tvTitle.includes('producer'))) &&
+              !tvTitle.includes('mom') &&
+              !tvTitle.includes('m/m') &&
+              !tvTitle.includes('core')
+            );
           }
           if (event.category === 'CPI') {
-            return tvTitle.includes('inflation rate yoy') || tvTitle.includes('cpi yoy') || tvTitle.includes('core cpi');
+            const isCoreEvent = event.title.toLowerCase().includes('core');
+            if (isCoreEvent) {
+              return tvTitle.includes('core inflation') || tvTitle.includes('core cpi');
+            }
+            // For Headline CPI: Must match Headline YoY, NOT Core and NOT MoM
+            return (
+              (tvTitle.includes('inflation rate yoy') || tvTitle.includes('cpi yoy') || tvTitle.includes('consumer price index')) &&
+              !tvTitle.includes('core') &&
+              !tvTitle.includes('mom') &&
+              !tvTitle.includes('m/m')
+            );
           }
           if (event.category === 'FOMC') {
             return (
@@ -168,7 +183,10 @@ export class MacroService implements OnModuleInit {
             return tvTitle.includes('core pce price index yoy') || tvTitle.includes('pce price index');
           }
           if (event.category === 'GDP') {
-            return tvTitle.includes('gdp growth rate') || tvTitle.includes('gdp sales qoq');
+            return (
+              (tvTitle.includes('gdp growth rate') || tvTitle.includes('gdp sales qoq') || tvTitle.includes('gdp qoq')) &&
+              !tvTitle.includes('price index')
+            );
           }
           return false;
         });
@@ -178,28 +196,44 @@ export class MacroService implements OnModuleInit {
           const unit = match.unit ? `${match.unit}` : '';
           let changed = false;
 
-          // Update actual if available from feed
-          if (match.actual !== null && match.actual !== undefined && match.actual !== '') {
-            const actualStr = `${match.actual}${unit ? (unit.startsWith('%') ? unit : ' ' + unit) : ''}`;
-            if (event.actual !== actualStr) {
+          // Helper to check if value looks like a reasonable rate/number and not an unparsed raw index point
+          const isSensibleRate = (val: any) => {
+            if (val === null || val === undefined || val === '') return false;
+            const num = parseFloat(String(val));
+            if (isNaN(num)) return false;
+            // If it's a CPI or PPI or Rate event, index points like 157.4 or 336.9 should NOT replace percentage rates
+            if (
+              (event.category === 'CPI' || event.category === 'PPI' || event.category === 'PCE' || event.category === 'FOMC') &&
+              !String(val).includes('%') &&
+              (num > 25 || num < -20)
+            ) {
+              return false;
+            }
+            return true;
+          };
+
+          // Update actual: only if event did NOT have an actual value yet (e.g. today or upcoming event newly released)
+          if (isSensibleRate(match.actual)) {
+            const actualStr = `${match.actual}${unit ? (unit.startsWith('%') ? unit : ' ' + unit) : (event.category === 'NFP' ? 'K' : '%')}`;
+            if (!event.actual || event.actual.trim() === '-' || event.actual.trim() === '') {
               event.actual = actualStr;
               changed = true;
             }
           }
 
-          // Update forecast if available
-          if (match.forecast !== null && match.forecast !== undefined && match.forecast !== '') {
-            const forecastStr = `${match.forecast}${unit ? (unit.startsWith('%') ? unit : ' ' + unit) : ''}`;
-            if (event.forecast !== forecastStr) {
+          // Update forecast: only if missing or '-'
+          if (isSensibleRate(match.forecast)) {
+            const forecastStr = `${match.forecast}${unit ? (unit.startsWith('%') ? unit : ' ' + unit) : (event.category === 'NFP' ? 'K' : '%')}`;
+            if (!event.forecast || event.forecast.trim() === '-' || event.forecast.trim() === '') {
               event.forecast = forecastStr;
               changed = true;
             }
           }
 
-          // Update previous if available
-          if (match.previous !== null && match.previous !== undefined && match.previous !== '') {
-            const prevStr = `${match.previous}${unit ? (unit.startsWith('%') ? unit : ' ' + unit) : ''}`;
-            if (event.previous !== prevStr) {
+          // Update previous: only if missing or '-'
+          if (isSensibleRate(match.previous)) {
+            const prevStr = `${match.previous}${unit ? (unit.startsWith('%') ? unit : ' ' + unit) : (event.category === 'NFP' ? 'K' : '%')}`;
+            if (!event.previous || event.previous.trim() === '-' || event.previous.trim() === '') {
               event.previous = prevStr;
               changed = true;
             }
@@ -389,9 +423,27 @@ export class MacroService implements OnModuleInit {
       return evtWib.toISOString().startsWith(currentMonthStr);
     }).length;
 
+    const completedEvents = events.filter((e) => e.status === 'COMPLETED');
+    const latestCpi = completedEvents.find((e) => e.category === 'CPI');
+    const latestNfp = completedEvents.find((e) => e.category === 'NFP');
+    const latestPpi = completedEvents.find((e) => e.category === 'PPI');
+
+    const formatKpiVal = (val?: string, fallback: string = '-') => {
+      if (!val) return fallback;
+      const parts = val.split('(');
+      return parts[0].trim();
+    };
+
+    const currentCpi = formatKpiVal(latestCpi?.actual, '2.4% YoY');
+    const currentNfp = formatKpiVal(latestNfp?.actual, '+254K / 4.1%');
+    const currentPpi = formatKpiVal(latestPpi?.actual, '1.6% Exp');
+
     return {
       now: now.toISOString(),
       currentFedRate: '4.75% - 5.00%',
+      currentCpi,
+      currentPpi,
+      currentNfp,
       nextEvent: nextEventInfo,
       todayEventsCount,
       upcomingEventsCount,
