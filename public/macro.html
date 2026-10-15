@@ -1235,14 +1235,14 @@
         <div class="kpi-box-sub" id="kpiNextFomc">Next FOMC: 28 Okt 2026 (-25 bps cut)</div>
       </div>
 
-      <div class="kpi-box orange" onclick="openHistoryModal('CPI')" title="Klik untuk melihat riwayat lengkap inflasi konsumen AS (CPI)">
+      <div class="kpi-box orange" onclick="openHistoryModal('CPI')" title="Klik untuk melihat riwayat lengkap inflasi inti konsumen AS (Core CPI)">
         <div class="kpi-box-title">
-          <span>🛒 Inflasi Konsumen (CPI)</span>
-          <span class="badge-tag high" style="font-size:10px;">Headline YoY</span>
+          <span>🛒 Inflasi Inti (Core CPI)</span>
+          <span class="badge-tag high" style="font-size:10px;">Core YoY</span>
           <span class="kpi-click-hint">Riwayat ↗</span>
         </div>
-        <div class="kpi-box-value" id="kpiCpi">2.4% YoY</div>
-        <div class="kpi-box-sub" id="kpiNextCpi">Next CPI: 10 Nov 2026 (Exp 2.3%)</div>
+        <div class="kpi-box-value" id="kpiCpi">2.6% YoY</div>
+        <div class="kpi-box-sub" id="kpiNextCpi">Next Core CPI: 10 Nov 2026 (Exp 2.5%)</div>
       </div>
 
       <div class="kpi-box yellow" onclick="openHistoryModal('PPI')" title="Klik untuk melihat riwayat lengkap inflasi produsen AS (PPI)">
@@ -1287,13 +1287,13 @@
         </div>
 
         <div class="edu-card">
-          <div class="edu-card-title">🛒 CPI (Consumer Price Index)</div>
+          <div class="edu-card-title">🛒 Core CPI (Core Consumer Price Index)</div>
           <p>
-            Indikator inflasi tingkat konsumen yang paling sensitif. The Fed memiliki target inflasi jangka panjang di 2.0%. Jika CPI turun mendekati target, The Fed memiliki keleluasaan penuh untuk memangkas suku bunga.
+            Indikator inflasi inti tingkat konsumen tanpa komponen pangan & energi yang bergejolak. Merupakan tolok ukur utama yang dipantau The Fed karena mencerminkan tren inflasi struktural yang persisten.
           </p>
           <div class="impact-bullet">
-            🟢 <strong>CPI < Forecast:</strong> Inflasi mendingin -> Bullish Crypto.<br>
-            🔴 <strong>CPI > Forecast:</strong> Inflasi membandel -> Bearish Crypto.
+            🟢 <strong>Core CPI &lt; Forecast:</strong> Inflasi inti mendingin -&gt; Bullish Crypto.<br>
+            🔴 <strong>Core CPI &gt; Forecast:</strong> Inflasi inti membandel -&gt; Koreksi pasar singkat.
           </div>
         </div>
 
@@ -1326,7 +1326,7 @@
         <div class="chips-group" id="categoryChips">
           <button class="chip-btn active" data-cat="ALL" onclick="setCategoryFilter('ALL')">🌐 Semua</button>
           <button class="chip-btn" data-cat="FOMC" onclick="setCategoryFilter('FOMC')">🏛️ FOMC Suku Bunga</button>
-          <button class="chip-btn" data-cat="CPI" onclick="setCategoryFilter('CPI')">🛒 CPI (Inflasi)</button>
+          <button class="chip-btn" data-cat="CPI" onclick="setCategoryFilter('CPI')">🛒 Core CPI (Inflasi Inti)</button>
           <button class="chip-btn" data-cat="PPI" onclick="setCategoryFilter('PPI')">🏭 PPI (Produsen)</button>
           <button class="chip-btn" data-cat="PCE" onclick="setCategoryFilter('PCE')">🎯 Core PCE</button>
           <button class="chip-btn" data-cat="NFP" onclick="setCategoryFilter('NFP')">💼 NFP Tenaga Kerja</button>
@@ -1624,7 +1624,7 @@
       }
 
       if (macroSummary.nextCpi) {
-        document.getElementById('kpiNextCpi').textContent = `Next CPI: ${macroSummary.nextCpi.dateFormatted} (Exp: ${macroSummary.nextCpi.forecast || '-'})`;
+        document.getElementById('kpiNextCpi').textContent = `Next Core CPI: ${macroSummary.nextCpi.dateFormatted} (Exp: ${macroSummary.nextCpi.forecast || '-'})`;
       }
 
       if (macroSummary.nextPpi) {

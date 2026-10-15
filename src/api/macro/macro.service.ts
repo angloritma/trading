@@ -157,14 +157,12 @@ export class MacroService implements OnModuleInit {
             );
           }
           if (event.category === 'CPI') {
-            const isCoreEvent = event.title.toLowerCase().includes('core');
-            if (isCoreEvent) {
-              return tvTitle.includes('core inflation') || tvTitle.includes('core cpi');
-            }
-            // For Headline CPI: Must match Headline YoY, NOT Core and NOT MoM
+            // Match Core Inflation YoY from live feed
             return (
-              (tvTitle.includes('inflation rate yoy') || tvTitle.includes('cpi yoy') || tvTitle.includes('consumer price index')) &&
-              !tvTitle.includes('core') &&
+              (tvTitle.includes('core inflation rate yoy') ||
+               tvTitle.includes('core cpi yoy') ||
+               (tvTitle.includes('core') && tvTitle.includes('cpi') && tvTitle.includes('yoy')) ||
+               (tvTitle.includes('core') && tvTitle.includes('cpi'))) &&
               !tvTitle.includes('mom') &&
               !tvTitle.includes('m/m')
             );
@@ -434,7 +432,7 @@ export class MacroService implements OnModuleInit {
       return parts[0].trim();
     };
 
-    const currentCpi = formatKpiVal(latestCpi?.actual, '2.4% YoY');
+    const currentCpi = formatKpiVal(latestCpi?.actual, '2.6% YoY');
     const currentNfp = formatKpiVal(latestNfp?.actual, '+254K / 4.1%');
     const currentPpi = formatKpiVal(latestPpi?.actual, '1.6% Exp');
 
@@ -465,7 +463,7 @@ export class MacroService implements OnModuleInit {
     const events = this.getEventsWithStatus(new Date());
     const categories: { category: MacroCategory; label: string }[] = [
       { category: 'FOMC', label: 'FOMC (Suku Bunga The Fed)' },
-      { category: 'CPI', label: 'CPI (Inflasi Konsumen)' },
+      { category: 'CPI', label: 'Core CPI (Inflasi Inti Konsumen)' },
       { category: 'PPI', label: 'PPI (Inflasi Produsen)' },
       { category: 'PCE', label: 'Core PCE (Pengukur Fed)' },
       { category: 'NFP', label: 'NFP & Ketenagakerjaan' },
