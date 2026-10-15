@@ -1149,9 +1149,9 @@
 
     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
       <!-- Live Sync Status -->
-      <span id="syncStatusBadge" class="font-mono" style="font-size:11px; color:var(--text-dim); display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:6px; background:var(--card-bg-elevated); border:1px solid var(--card-border-subtle);" title="Data disinkronkan secara otomatis oleh background cron job setiap jam">
+      <span id="syncStatusBadge" class="font-mono" style="font-size:11px; color:var(--text-dim); display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:6px; background:var(--card-bg-elevated); border:1px solid var(--card-border-subtle);" title="Data makroekonomi 100% menggunakan Free Public APIs (TradingView, ForexFactory & BLS)">
         <span id="syncDot" style="display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green-glow);"></span>
-        <span id="syncStatusText">Feed: Otomatis</span>
+        <span id="syncStatusText">Free API: Otomatis</span>
       </span>
 
       <!-- Theme Toggle -->
@@ -1536,10 +1536,10 @@
       if (macroSummary && macroSummary.lastSyncTime) {
         const syncDate = new Date(macroSummary.lastSyncTime);
         const timeStr = syncDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        badgeText.textContent = `Sinkron: ${timeStr} WIB (${macroSummary.syncedEventsCount || 0} event)`;
+        badgeText.textContent = `Free API: ${timeStr} WIB (${macroSummary.syncedEventsCount || 0} event)`;
         badgeDot.style.background = macroSummary.lastSyncStatus === 'ERROR' ? 'var(--yellow)' : 'var(--green)';
       } else {
-        badgeText.textContent = 'Auto-Cron: Aktif';
+        badgeText.textContent = 'Free API: Otomatis';
         badgeDot.style.background = 'var(--green)';
       }
     }

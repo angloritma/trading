@@ -55,5 +55,7 @@ export interface MacroSummary {
   lastSyncTime?: string;
   lastSyncStatus?: 'SUCCESS' | 'ERROR' | 'IDLE';
   syncedEventsCount?: number;
+  apiSource?: string;
+  isFreeApi?: boolean;
 }
 

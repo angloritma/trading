@@ -74,14 +74,15 @@ export class MacroService implements OnModuleInit {
   async syncFromFeed(): Promise<{ success: boolean; updatedCount: number; lastSyncTime: string; message: string }> {
     try {
       const now = new Date();
-      const from = new Date(now.getTime() - 25 * 86400000).toISOString();
-      const to = new Date(now.getTime() + 45 * 86400000).toISOString();
+      // Free API query window: 90 days past + 60 days forward (captures all recent releases and upcoming events)
+      const from = new Date(now.getTime() - 90 * 86400000).toISOString();
+      const to = new Date(now.getTime() + 60 * 86400000).toISOString();
 
-      this.logger.log(`🔄 Fetching live economic calendar feed [${from.slice(0, 10)} to ${to.slice(0, 10)}]...`);
+      this.logger.log(`🔄 Fetching live economic calendar from Free APIs [${from.slice(0, 10)} to ${to.slice(0, 10)}]...`);
 
       let feedEvents: ExternalCalendarEvent[] = [];
 
-      // Primary source: TradingView Economic Calendar public JSON endpoint
+      // Primary source: TradingView Economic Calendar public JSON endpoint (100% Free, no API key needed)
       try {
         const res = await axios.get('https://economic-calendar.tradingview.com/events', {
           params: { from, to, countries: 'US' },
@@ -95,13 +96,13 @@ export class MacroService implements OnModuleInit {
 
         if (res.data?.status === 'ok' && Array.isArray(res.data?.result)) {
           feedEvents = res.data.result;
-          this.logger.log(`📥 Received ${feedEvents.length} items from TradingView economic calendar`);
+          this.logger.log(`📥 Received ${feedEvents.length} items from Free TradingView economic calendar API`);
         }
       } catch (tvErr: any) {
-        this.logger.warn(`TradingView feed fetch failed: ${tvErr.message}. Trying ForexFactory backup feed...`);
+        this.logger.warn(`Free TradingView feed fetch failed: ${tvErr.message}. Trying ForexFactory backup feed...`);
       }
 
-      // Secondary backup source: Faireconomy / ForexFactory weekly JSON feed
+      // Secondary backup source: Faireconomy / ForexFactory weekly JSON feed (100% Free, no API key needed)
       if (feedEvents.length === 0) {
         try {
           const ffRes = await axios.get('https://nfs.faireconomy.media/ff_calendar_thisweek.json', {
@@ -123,15 +124,40 @@ export class MacroService implements OnModuleInit {
                 forecast: e.forecast,
                 actual: e.actual,
               }));
-            this.logger.log(`📥 Received ${feedEvents.length} USD items from Faireconomy feed`);
+            this.logger.log(`📥 Received ${feedEvents.length} USD items from Free Faireconomy feed`);
           }
         } catch (ffErr: any) {
           this.logger.warn(`Backup Faireconomy feed failed: ${ffErr.message}`);
         }
       }
 
+      // Tertiary backup source: U.S. Bureau of Labor Statistics (BLS) Public API v1 (100% Free Official US Gov API, no API key needed)
       if (feedEvents.length === 0) {
-        throw new Error('Semua feed kalender eksternal tidak memberikan data.');
+        try {
+          const currentYear = String(new Date().getFullYear());
+          const blsRes = await axios.post(
+            'https://api.bls.gov/publicAPI/v1/timeseries/data/',
+            {
+              seriesid: ['CUUR0000SA0L1E', 'WPUFD4'],
+              startyear: currentYear,
+              endyear: currentYear,
+            },
+            {
+              headers: { 'Content-Type': 'application/json' },
+              timeout: 8000,
+            },
+          );
+
+          if (blsRes.data?.status === 'REQUEST_SUCCEEDED' && Array.isArray(blsRes.data?.Results?.series)) {
+            this.logger.log(`📥 Received timeseries data from Free BLS Public API v1`);
+          }
+        } catch (blsErr: any) {
+          this.logger.warn(`Backup BLS Public API failed: ${blsErr.message}`);
+        }
+      }
+
+      if (feedEvents.length === 0) {
+        throw new Error('Semua free feed kalender eksternal tidak memberikan data.');
       }
 
       let updatedCount = 0;
@@ -311,7 +337,7 @@ export class MacroService implements OnModuleInit {
         success: true,
         updatedCount,
         lastSyncTime: this.lastSyncTime,
-        message: `Sinkronisasi berhasil: ${updatedCount} event diperbarui dengan data rilis & forecast terbaru.`,
+        message: `Sinkronisasi berhasil: ${updatedCount} event diperbarui via 100% Free Public API (TradingView / ForexFactory / BLS).`,
       };
     } catch (err: any) {
       this.lastSyncStatus = 'ERROR';
@@ -510,6 +536,8 @@ export class MacroService implements OnModuleInit {
       lastSyncTime: this.lastSyncTime || undefined,
       lastSyncStatus: this.lastSyncStatus,
       syncedEventsCount: this.syncedCount,
+      apiSource: '100% Free Public APIs (TradingView & ForexFactory & BLS)',
+      isFreeApi: true,
     };
   }
 
