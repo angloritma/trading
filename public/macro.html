@@ -191,6 +191,15 @@
       position: relative;
       overflow: hidden;
       box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      user-select: none;
+    }
+
+    .kpi-box:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--blue);
     }
 
     .kpi-box::before {
@@ -216,6 +225,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
+    }
+
+    .kpi-click-hint {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--btn-bg);
+      color: var(--blue);
+      border: 1px solid var(--btn-border);
+      margin-left: auto;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .kpi-box:hover .kpi-click-hint {
+      background: var(--blue);
+      color: #ffffff;
+      border-color: var(--blue);
     }
 
     .kpi-box-value {
@@ -231,6 +262,300 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    /* Modal Dialog & Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-dialog {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .modal-backdrop.active .modal-dialog {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      background: var(--card-bg-elevated);
+    }
+
+    .modal-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-icon-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      flex-shrink: 0;
+    }
+
+    .modal-title-wrap h3 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 2px;
+    }
+
+    .modal-title-wrap p {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.15s ease;
+    }
+
+    .modal-close-btn:hover {
+      color: var(--text-main);
+      background: var(--btn-active-bg);
+      border-color: var(--red);
+    }
+
+    .modal-body {
+      padding: 20px 22px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .modal-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .modal-stat-card {
+      background: var(--card-bg-elevated);
+      border: 1px solid var(--card-border-subtle);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .m-stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-dim);
+    }
+
+    .m-stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .m-stat-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .trend-chart-box {
+      background: var(--card-bg-elevated);
+      border: 1px solid var(--card-border-subtle);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .trend-chart-title {
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-main);
+    }
+
+    .trend-bars-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 95px;
+      padding-top: 10px;
+      border-bottom: 1px solid var(--card-border);
+      overflow-x: auto;
+    }
+
+    .trend-bar-col {
+      flex: 1;
+      min-width: 46px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .trend-bar-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .trend-bar-pill {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      background: var(--blue);
+      transition: height 0.3s ease, background 0.15s ease;
+      min-height: 4px;
+    }
+
+    .trend-bar-pill.bullish { background: var(--green); }
+    .trend-bar-pill.bearish { background: var(--red); }
+    .trend-bar-pill.neutral { background: var(--blue); }
+
+    .trend-bar-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      border: 1px solid var(--card-border-subtle);
+      border-radius: 10px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    .history-table th {
+      background: var(--btn-bg);
+      color: var(--text-dim);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--card-border);
+      white-space: nowrap;
+    }
+
+    .history-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--card-border-subtle);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    .history-table tr:hover td {
+      background: var(--btn-bg);
+    }
+
+    .badge-surprise {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .badge-surprise.bullish {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-surprise.bearish {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-surprise.neutral {
+      background: rgba(107, 114, 128, 0.15);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+
+    .modal-footer {
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--card-border);
+      background: var(--card-bg-elevated);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .modal-footer-info {
+      font-size: 12px;
+      color: var(--text-dim);
     }
 
     /* Educational Section */
@@ -829,39 +1154,43 @@
       </div>
     </section>
 
-    <!-- Key Indicators KPI Grid -->
+    <!-- Key Indicators KPI Grid (Clickable for History Popup) -->
     <section class="kpi-row">
-      <div class="kpi-box blue">
+      <div class="kpi-box blue" onclick="openHistoryModal('FOMC')" title="Klik untuk melihat riwayat keputusan suku bunga The Fed (FOMC)">
         <div class="kpi-box-title">
           <span>🏛️ Target Suku Bunga Fed</span>
           <span class="badge-tag upcoming" style="font-size:10px;">Fed Funds</span>
+          <span class="kpi-click-hint">Riwayat ↗</span>
         </div>
         <div class="kpi-box-value" id="kpiFedRate">4.75% - 5.00%</div>
         <div class="kpi-box-sub" id="kpiNextFomc">Next FOMC: 28 Okt 2026 (-25 bps cut)</div>
       </div>
 
-      <div class="kpi-box orange">
+      <div class="kpi-box orange" onclick="openHistoryModal('CPI')" title="Klik untuk melihat riwayat lengkap inflasi konsumen AS (CPI)">
         <div class="kpi-box-title">
           <span>🛒 Inflasi Konsumen (CPI)</span>
           <span class="badge-tag high" style="font-size:10px;">YoY</span>
+          <span class="kpi-click-hint">Riwayat ↗</span>
         </div>
         <div class="kpi-box-value" id="kpiCpi">2.4% YoY</div>
         <div class="kpi-box-sub" id="kpiNextCpi">Next CPI: 10 Nov 2026 (Exp 2.3%)</div>
       </div>
 
-      <div class="kpi-box yellow">
+      <div class="kpi-box yellow" onclick="openHistoryModal('PPI')" title="Klik untuk melihat riwayat lengkap inflasi produsen AS (PPI)">
         <div class="kpi-box-title">
           <span>🏭 Inflasi Produsen (PPI)</span>
           <span class="badge-tag today" style="font-size:10px;">Hari Ini</span>
+          <span class="kpi-click-hint">Riwayat ↗</span>
         </div>
         <div class="kpi-box-value" id="kpiPpi">1.6% Exp</div>
         <div class="kpi-box-sub" id="kpiNextPpi">Rilis: 15 Okt 2026 (19:30 WIB)</div>
       </div>
 
-      <div class="kpi-box green">
+      <div class="kpi-box green" onclick="openHistoryModal('NFP')" title="Klik untuk melihat riwayat lengkap ketenagakerjaan (NFP)">
         <div class="kpi-box-title">
           <span>💼 Tenaga Kerja (NFP)</span>
           <span class="badge-tag upcoming" style="font-size:10px;">BLS</span>
+          <span class="kpi-click-hint">Riwayat ↗</span>
         </div>
         <div class="kpi-box-value" id="kpiNfp">+254K / 4.1%</div>
         <div class="kpi-box-sub" id="kpiNextNfp">Next NFP: 06 Nov 2026</div>
@@ -968,6 +1297,94 @@
       </div>
     </section>
   </main>
+
+  <!-- Macro History Modal Dialog -->
+  <div class="modal-backdrop" id="historyModalBackdrop" onclick="handleModalBackdropClick(event)">
+    <div class="modal-dialog" id="historyModalDialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-icon-badge" id="modalIcon">📊</div>
+          <div>
+            <h3 id="modalTitle">Riwayat Indikator Makro</h3>
+            <p id="modalSubtitle">Data historis, perbandingan perkiraan vs aktual, dan dampak pasar</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeHistoryModal()" title="Tutup (Esc)">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Visual KPI Highlights -->
+        <div class="modal-summary-grid">
+          <div class="modal-stat-card">
+            <span class="m-stat-label">Angka Terkini</span>
+            <span class="m-stat-val" id="mStatLatest">-</span>
+            <span class="m-stat-sub" id="mStatPeriod">-</span>
+          </div>
+          <div class="modal-stat-card">
+            <span class="m-stat-label">Target / Benchmark</span>
+            <span class="m-stat-val" id="mStatTarget" style="color:var(--blue);">-</span>
+            <span class="m-stat-sub" id="mStatBenchmark">-</span>
+          </div>
+          <div class="modal-stat-card">
+            <span class="m-stat-label">Arah Tren (6-12 Bln)</span>
+            <span class="m-stat-val" id="mStatTrend" style="font-size:15px;">-</span>
+            <span class="m-stat-sub" id="mStatTrendSub">-</span>
+          </div>
+          <div class="modal-stat-card">
+            <span class="m-stat-label">Dampak ke Bitcoin</span>
+            <span class="m-stat-val" id="mStatCryptoImpact" style="font-size:14px; font-weight:700; color:var(--green);">-</span>
+            <span class="m-stat-sub" id="mStatCryptoSub">-</span>
+          </div>
+        </div>
+
+        <!-- Trend Bars Visualization -->
+        <div class="trend-chart-box">
+          <div class="trend-chart-title">
+            <span id="trendChartTitle">📈 Grafik Tren Historis</span>
+            <span id="trendChartUnit" class="font-mono" style="font-size:11px; color:var(--text-dim);">-</span>
+          </div>
+          <div class="trend-bars-container" id="trendBarsContainer">
+            <!-- Dynamic Trend Bars -->
+          </div>
+        </div>
+
+        <!-- Historical Data Table -->
+        <div class="table-responsive">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Periode Data</th>
+                <th>Tanggal Rilis</th>
+                <th>Hasil Aktual</th>
+                <th>Konsensus</th>
+                <th>Sebelumnya</th>
+                <th>Kejutan (Surprise)</th>
+                <th>Dampak / Reaksi Pasar Kripto</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-footer-info" id="modalFooterInfo">
+          Sumber: U.S. Bureau of Labor Statistics & Federal Reserve
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button onclick="exportHistoryCsv()" class="btn-outline" title="Download data riwayat sebagai file CSV">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Ekspor CSV
+          </button>
+          <button onclick="closeHistoryModal()" class="btn-action">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="/js/common.js"></script>
   <script>
@@ -1389,6 +1806,188 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+    }
+
+    // ==========================================
+    // History Modal Popup Logic
+    // ==========================================
+    let currentHistoryData = null;
+
+    async function openHistoryModal(category) {
+      const backdrop = document.getElementById('historyModalBackdrop');
+      backdrop.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Set temporary loading state
+      document.getElementById('modalTitle').textContent = `Memuat Riwayat ${category}...`;
+      document.getElementById('historyTableBody').innerHTML = `
+        <tr>
+          <td colspan="7" style="text-align:center; padding:32px; color:var(--text-dim);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 0.8s linear infinite; display:inline-block; margin-bottom:8px;"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+            <div>Mengambil data riwayat historis ${category}...</div>
+          </td>
+        </tr>
+      `;
+
+      try {
+        const res = await fetch(`/api/macro/history/${encodeURIComponent(category.toLowerCase())}`);
+        if (!res.ok) throw new Error('Gagal mengambil data riwayat');
+        const data = await res.json();
+        currentHistoryData = data;
+
+        // Header info
+        document.getElementById('modalIcon').textContent = data.icon || '📊';
+        document.getElementById('modalTitle').textContent = data.title;
+        document.getElementById('modalSubtitle').textContent = data.subtitle;
+
+        // KPI Highlights
+        document.getElementById('mStatLatest').textContent = data.currentValue;
+        document.getElementById('mStatPeriod').textContent = data.items[0] ? `Rilis: ${data.items[0].date}` : '';
+        document.getElementById('mStatTarget').textContent = data.targetBenchmark;
+        document.getElementById('mStatBenchmark').textContent = `Satuan: ${data.unit}`;
+        document.getElementById('mStatTrend').textContent = data.trendSummary;
+        document.getElementById('mStatTrendSub').textContent = data.trendDetail;
+        document.getElementById('mStatCryptoImpact').textContent = data.cryptoRule;
+        document.getElementById('mStatCryptoSub').textContent = data.cryptoSummary;
+        document.getElementById('trendChartUnit').textContent = `Satuan: ${data.unit}`;
+        document.getElementById('modalFooterInfo').textContent = `Sumber Data: ${data.source}`;
+
+        // Render Trend Chart & Table
+        renderTrendBars(data.items || [], data.category);
+        renderHistoryTableRows(data.items || []);
+
+      } catch (err) {
+        console.error('Error opening history modal:', err);
+        showToast('Gagal memuat riwayat: ' + err.message, 'error');
+        document.getElementById('modalTitle').textContent = 'Gagal Memuat Riwayat';
+        document.getElementById('historyTableBody').innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center; padding:24px; color:var(--red);">
+              ⚠️ Terjadi kesalahan: ${escapeHtml(err.message)}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderTrendBars(items, category) {
+      const container = document.getElementById('trendBarsContainer');
+      if (!items || items.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-dim); font-size:12px; margin:auto;">Tidak ada data tren</div>';
+        return;
+      }
+
+      // Display in chronological order (oldest to newest, left to right)
+      const chronItems = [...items].reverse();
+      const validNumerics = chronItems.map(it => it.actualNumeric).filter(n => typeof n === 'number' && !isNaN(n));
+      const minVal = validNumerics.length ? Math.min(...validNumerics) : 0;
+      const maxVal = validNumerics.length ? Math.max(...validNumerics) : 10;
+      const range = (maxVal - minVal) || 1;
+
+      container.innerHTML = chronItems.map(it => {
+        const num = it.actualNumeric;
+        let heightPct = 40;
+        if (typeof num === 'number') {
+          heightPct = Math.max(15, Math.min(100, Math.round(((num - minVal) / range) * 75 + 20)));
+        }
+
+        const surpriseClass = (it.surpriseType || 'neutral').toLowerCase();
+        const displayVal = it.actualNumeric !== undefined ? it.actualNumeric : (it.actual.replace(/[^0-9.]/g, '') || '-');
+
+        return `
+          <div class="trend-bar-col" title="${escapeHtml(it.period)}: Actual ${escapeHtml(it.actual)} (Exp: ${escapeHtml(it.forecast)})">
+            <span class="trend-bar-val">${displayVal}</span>
+            <div class="trend-bar-pill ${surpriseClass}" style="height: ${heightPct}%;"></div>
+            <span class="trend-bar-label">${escapeHtml(it.period.split(' ')[0])}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderHistoryTableRows(items) {
+      const tbody = document.getElementById('historyTableBody');
+      if (!items || items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim);">Belum ada data historis</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = items.map(it => {
+        let surpriseBadge = `<span class="badge-surprise neutral">${escapeHtml(it.surprise || 'In-line')}</span>`;
+        if (it.surpriseType === 'BULLISH') {
+          surpriseBadge = `<span class="badge-surprise bullish">🟢 ${escapeHtml(it.surprise)}</span>`;
+        } else if (it.surpriseType === 'BEARISH') {
+          surpriseBadge = `<span class="badge-surprise bearish">🔴 ${escapeHtml(it.surprise)}</span>`;
+        }
+
+        return `
+          <tr>
+            <td style="font-weight:700;">${escapeHtml(it.period)}</td>
+            <td class="font-mono" style="color:var(--text-dim);">${escapeHtml(it.date)}</td>
+            <td class="font-mono" style="font-weight:700; color:var(--text-main); font-size:13px;">${escapeHtml(it.actual)}</td>
+            <td class="font-mono" style="color:var(--text-muted);">${escapeHtml(it.forecast || '-')}</td>
+            <td class="font-mono" style="color:var(--text-dim);">${escapeHtml(it.previous || '-')}</td>
+            <td>${surpriseBadge}</td>
+            <td style="font-size:12px; line-height:1.4;">
+              <span style="color:var(--text-main);">${escapeHtml(it.cryptoReaction || '-')}</span>
+              ${it.notes ? `<div style="font-size:11px; color:var(--text-dim); margin-top:2px;">ℹ️ ${escapeHtml(it.notes)}</div>` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function closeHistoryModal() {
+      const backdrop = document.getElementById('historyModalBackdrop');
+      backdrop.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function handleModalBackdropClick(event) {
+      if (event.target.id === 'historyModalBackdrop') {
+        closeHistoryModal();
+      }
+    }
+
+    // Keyboard listener for Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const backdrop = document.getElementById('historyModalBackdrop');
+        if (backdrop && backdrop.classList.contains('active')) {
+          closeHistoryModal();
+        }
+      }
+    });
+
+    // Export current modal table to CSV
+    function exportHistoryCsv() {
+      if (!currentHistoryData || !currentHistoryData.items || !currentHistoryData.items.length) {
+        showToast('Tidak ada data riwayat untuk diekspor', 'warn');
+        return;
+      }
+
+      const headers = ['Periode', 'Tanggal Rilis', 'Hasil Aktual', 'Konsensus', 'Sebelumnya', 'Kejutan', 'Reaksi Pasar Crypto', 'Catatan'];
+      const rows = currentHistoryData.items.map(it => [
+        `"${it.period}"`,
+        `"${it.date}"`,
+        `"${it.actual}"`,
+        `"${it.forecast || '-'}"`,
+        `"${it.previous || '-'}"`,
+        `"${it.surprise || '-'}"`,
+        `"${(it.cryptoReaction || '').replace(/"/g, '""')}"`,
+        `"${(it.notes || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `riwayat-${currentHistoryData.category.toLowerCase()}-2026.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`File riwayat ${currentHistoryData.category} (.CSV) berhasil diunduh! 📄`, 'success');
     }
 
     // Initialize on page load

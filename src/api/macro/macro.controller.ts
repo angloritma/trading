@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { MacroService } from './macro.service';
 
 @Controller('macro')
@@ -45,6 +45,15 @@ export class MacroController {
   @Get('categories')
   getCategories() {
     return this.macroService.getCategories();
+  }
+
+  /**
+   * GET /api/macro/history/:category
+   * Return multi-year historical series for CPI, PPI, FOMC, or NFP
+   */
+  @Get('history/:category')
+  getHistory(@Param('category') category: string) {
+    return this.macroService.getHistory(category);
   }
 
   /**

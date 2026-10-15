@@ -1,8 +1,9 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, BadRequestException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import axios from 'axios';
 import { MacroCategory, MacroEvent, MacroStatus, MacroSummary } from './macro.types';
 import { MACRO_EVENTS_RAW } from './macro.data';
+import { MACRO_HISTORY_DATA, MacroIndicatorHistory } from './macro.history.data';
 
 interface ExternalCalendarEvent {
   id?: string;
@@ -423,5 +424,24 @@ export class MacroService implements OnModuleInit {
       ...cat,
       count: events.filter((e) => e.category === cat.category).length,
     }));
+  }
+
+  /**
+   * Return historical series for a specific key indicator (CPI, PPI, FOMC, NFP)
+   */
+  getHistory(category: string): MacroIndicatorHistory {
+    const cat = category.toUpperCase();
+    let key: 'CPI' | 'PPI' | 'FOMC' | 'NFP' | null = null;
+    if (cat === 'CPI') key = 'CPI';
+    else if (cat === 'PPI') key = 'PPI';
+    else if (cat === 'FOMC' || cat === 'FED' || cat === 'FEDFUND' || cat === 'RATE') key = 'FOMC';
+    else if (cat === 'NFP' || cat === 'JOBS') key = 'NFP';
+
+    if (!key || !MACRO_HISTORY_DATA[key]) {
+      throw new BadRequestException(
+        `Kategori riwayat '${category}' tidak didukung. Pilihan: CPI, PPI, FOMC, NFP`,
+      );
+    }
+    return MACRO_HISTORY_DATA[key];
   }
 }
