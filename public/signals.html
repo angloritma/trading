@@ -527,9 +527,9 @@
     <div class="kpi-grid">
       <!-- Total BUY Signals -->
       <div class="kpi-card green">
-        <div class="kpi-title">Total Sinyal BUY (7 Hari)</div>
+        <div class="kpi-title" id="kpiTotalTitle">Total Sinyal BUY (7 Hari)</div>
         <div id="kpiTotal" class="kpi-value font-mono" style="color:var(--green);">0</div>
-        <div class="kpi-sub">
+        <div class="kpi-sub" id="kpiTotalSub">
           <span>4H: <strong id="kpi4hCount">0</strong></span> &bull;
           <span>1D: <strong id="kpi1dCount">0</strong></span>
         </div>
@@ -539,9 +539,9 @@
       <div class="kpi-card blue">
         <div class="kpi-title">Posisi Aktif (Berjalan)</div>
         <div id="kpiActive" class="kpi-value font-mono" style="color:var(--primary);">0</div>
-        <div class="kpi-sub">
+        <div class="kpi-sub" id="kpiActiveSub">
           <span class="pulse-dot"></span>
-          <span>Floating profit / loss</span>
+          <span id="kpiActiveText">Floating profit / loss</span>
         </div>
       </div>
 
@@ -740,7 +740,6 @@
             const parsed = JSON.parse(cached);
             if (parsed && Array.isArray(parsed.signals) && parsed.signals.length) {
               allSignals = parsed.signals;
-              updateKPICounters(allSignals);
               applyFilters();
               document.getElementById('lastUpdatedLabel').textContent = 'Updated: ' + new Date(parsed.time).toLocaleTimeString();
             }
@@ -780,7 +779,6 @@
         } catch {}
 
         document.getElementById('lastUpdatedLabel').textContent = 'Updated: ' + new Date().toLocaleTimeString();
-        updateKPICounters(allSignals);
         applyFilters();
       } catch (err) {
         console.error('Failed to load signals:', err);
@@ -797,12 +795,26 @@
       }
     }
 
+    function updateUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (currentTimeframeFilter !== 'all') params.set('timeframe', currentTimeframeFilter);
+      else params.delete('timeframe');
+      if (currentStatusFilter !== 'all') params.set('status', currentStatusFilter);
+      else params.delete('status');
+      const algo = document.getElementById('algorithmFilter').value;
+      if (algo !== 'v1') params.set('algo', algo);
+      else params.delete('algo');
+      const newQuery = params.toString();
+      window.history.replaceState(null, '', `${window.location.pathname}${newQuery ? '?' + newQuery : ''}`);
+    }
+
     function setTimeframeFilter(tf) {
       currentTimeframeFilter = tf;
       document.getElementById('tfAll').classList.toggle('active', tf === 'all');
       document.getElementById('tf4h').classList.toggle('active', tf === '4h');
       document.getElementById('tf1d').classList.toggle('active', tf === '1d');
       currentPage = 1;
+      updateUrlParams();
       applyFilters();
     }
 
@@ -813,6 +825,7 @@
         if (el) el.classList.toggle('active', s === status);
       });
       currentPage = 1;
+      updateUrlParams();
       applyFilters();
     }
 
@@ -824,18 +837,50 @@
       applyFilters();
     }
 
-    function updateKPICounters(signals) {
-      const total = signals.length;
-      const count4h = signals.filter(s => s.timeframe === '4h').length;
-      const count1d = signals.filter(s => s.timeframe === '1d').length;
-      const active = signals.filter(s => s.status === 'ACTIVE').length;
-      const tp = signals.filter(s => s.status === 'HIT_TP').length;
-      const sl = signals.filter(s => s.status === 'HIT_SL').length;
+    function updateKPICounters() {
+      // Signals pool for the selected timeframe
+      const tfSignals = currentTimeframeFilter === 'all'
+        ? allSignals
+        : allSignals.filter(s => s.timeframe === currentTimeframeFilter);
+
+      const total = tfSignals.length;
+      const count4h = allSignals.filter(s => s.timeframe === '4h').length;
+      const count1d = allSignals.filter(s => s.timeframe === '1d').length;
+      const active = tfSignals.filter(s => s.status === 'ACTIVE').length;
+      const tp = tfSignals.filter(s => s.status === 'HIT_TP').length;
+      const sl = tfSignals.filter(s => s.status === 'HIT_SL').length;
 
       document.getElementById('kpiTotal').textContent = total;
-      document.getElementById('kpi4hCount').textContent = count4h;
-      document.getElementById('kpi1dCount').textContent = count1d;
+
+      const titleEl = document.getElementById('kpiTotalTitle');
+      if (titleEl) {
+        if (currentTimeframeFilter === '1d') {
+          titleEl.textContent = 'Total Sinyal BUY (1D Macro)';
+        } else if (currentTimeframeFilter === '4h') {
+          titleEl.textContent = 'Total Sinyal BUY (4H Swing)';
+        } else {
+          titleEl.textContent = 'Total Sinyal BUY (7 Hari)';
+        }
+      }
+
+      const subEl = document.getElementById('kpiTotalSub');
+      if (subEl) {
+        if (currentTimeframeFilter === '1d') {
+          subEl.innerHTML = `<span style="color:var(--primary); font-weight:700;">1D: ${count1d}</span> &bull; <span style="opacity:0.75;">4H: ${count4h}</span> &bull; <span style="opacity:0.75;">Semua TF: ${allSignals.length}</span>`;
+        } else if (currentTimeframeFilter === '4h') {
+          subEl.innerHTML = `<span style="color:var(--primary); font-weight:700;">4H: ${count4h}</span> &bull; <span style="opacity:0.75;">1D: ${count1d}</span> &bull; <span style="opacity:0.75;">Semua TF: ${allSignals.length}</span>`;
+        } else {
+          subEl.innerHTML = `<span>4H: <strong id="kpi4hCount">${count4h}</strong></span> &bull; <span>1D: <strong id="kpi1dCount">${count1d}</strong></span>`;
+        }
+      }
+
       document.getElementById('kpiActive').textContent = active;
+      const activeTextEl = document.getElementById('kpiActiveText');
+      if (activeTextEl) {
+        const tfLabel = currentTimeframeFilter === 'all' ? 'semua TF' : currentTimeframeFilter.toUpperCase();
+        activeTextEl.textContent = `${active} floating di ${tfLabel}`;
+      }
+
       document.getElementById('kpiTp').textContent = tp;
       document.getElementById('kpiSl').textContent = sl;
 
@@ -850,6 +895,9 @@
     }
 
     function applyFilters() {
+      // Synchronize KPI Dashboard with currently selected timeframe
+      updateKPICounters();
+
       let filtered = [...allSignals];
 
       // Timeframe filter
@@ -1108,6 +1156,27 @@
 
     // Boot
     window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('timeframe')) {
+        currentTimeframeFilter = urlParams.get('timeframe').toLowerCase();
+      }
+      if (urlParams.get('status')) {
+        currentStatusFilter = urlParams.get('status').toLowerCase();
+      }
+      if (urlParams.get('algo')) {
+        const algoEl = document.getElementById('algorithmFilter');
+        if (algoEl) algoEl.value = urlParams.get('algo');
+      }
+
+      document.getElementById('tfAll').classList.toggle('active', currentTimeframeFilter === 'all');
+      document.getElementById('tf4h').classList.toggle('active', currentTimeframeFilter === '4h');
+      document.getElementById('tf1d').classList.toggle('active', currentTimeframeFilter === '1d');
+
+      ['all', 'active', 'tp', 'sl'].forEach(s => {
+        const el = document.getElementById(`chip-status-${s}`);
+        if (el) el.classList.toggle('active', s === currentStatusFilter);
+      });
+
       toggleAlgoFilter();
       loadSignals();
     });

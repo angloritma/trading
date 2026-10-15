@@ -1551,6 +1551,13 @@
         c.classList.toggle('active', c.textContent.replace('/', '') === sym);
       });
 
+      const params = new URLSearchParams(window.location.search);
+      params.set('symbol', sym);
+      params.set('timeframe', currentTimeframe);
+      const algo = document.getElementById('algorithmSelect')?.value;
+      if (algo) params.set('algo', algo);
+      window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+
       loadChartData();
     }
 
@@ -1560,6 +1567,14 @@
       document.getElementById('tf1d').classList.toggle('active', tf === '1d');
       document.getElementById('statTimeframeLabel').textContent = `Timeframe: ${tf.toUpperCase()}`;
       document.getElementById('quantTfRule').textContent = tf === '1d' ? 'SMA 30' : 'SMA 60';
+
+      const params = new URLSearchParams(window.location.search);
+      params.set('symbol', currentSymbol);
+      params.set('timeframe', tf);
+      const algo = document.getElementById('algorithmSelect')?.value;
+      if (algo) params.set('algo', algo);
+      window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+
       loadChartData();
     }
 
