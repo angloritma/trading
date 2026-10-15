@@ -275,9 +275,18 @@ export class MacroService implements OnModuleInit {
               const catKey = event.category as keyof typeof MACRO_HISTORY_DATA;
               if (MACRO_HISTORY_DATA[catKey]) {
                 MACRO_HISTORY_DATA[catKey].currentValue = `${event.actual} (${event.period})`;
-                const targetPeriodStr = event.period.replace('Data ', '').trim().toLowerCase();
+                const isSamePeriod = (p1: string, p2: string) => {
+                  const norm = (s: string) => s.replace(/data\s+/i, '').trim().toLowerCase();
+                  const s1 = norm(p1);
+                  const s2 = norm(p2);
+                  if (s1 === s2) return true;
+                  const [m1, y1] = s1.split(' ');
+                  const [m2, y2] = s2.split(' ');
+                  if (y1 && y2 && y1 !== y2) return false;
+                  return m1 && m2 && m1.slice(0, 3) === m2.slice(0, 3);
+                };
                 const histItem = MACRO_HISTORY_DATA[catKey].items.find(
-                  (item) => item.period.trim().toLowerCase() === targetPeriodStr,
+                  (item) => isSamePeriod(item.period, event.period),
                 );
                 if (histItem) {
                   histItem.actual = event.actual;
