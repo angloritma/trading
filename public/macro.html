@@ -271,18 +271,23 @@
       background: var(--overlay-bg);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      z-index: 1000;
+      z-index: 10000;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 20px;
       opacity: 0;
+      pointer-events: none;
       transition: opacity 0.2s ease;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
-    .modal-backdrop.active {
+    .modal-backdrop.active,
+    .modal-backdrop.open {
       display: flex;
       opacity: 1;
+      pointer-events: auto;
     }
 
     .modal-dialog {
@@ -298,9 +303,13 @@
       transform: translateY(12px) scale(0.98);
       transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       overflow: hidden;
+      min-height: 0;
+      position: relative;
+      pointer-events: auto;
     }
 
-    .modal-backdrop.active .modal-dialog {
+    .modal-backdrop.active .modal-dialog,
+    .modal-backdrop.open .modal-dialog {
       transform: translateY(0) scale(1);
     }
 
@@ -311,12 +320,16 @@
       justify-content: space-between;
       border-bottom: 1px solid var(--card-border);
       background: var(--card-bg-elevated);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
     }
 
     .modal-title-wrap {
       display: flex;
       align-items: center;
       gap: 12px;
+      min-width: 0;
     }
 
     .modal-icon-badge {
@@ -337,11 +350,17 @@
       font-weight: 700;
       letter-spacing: -0.01em;
       margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .modal-title-wrap p {
       font-size: 12px;
       color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .modal-close-btn {
@@ -357,6 +376,10 @@
       justify-content: center;
       font-size: 16px;
       transition: all 0.15s ease;
+      flex-shrink: 0;
+      pointer-events: auto;
+      position: relative;
+      z-index: 10;
     }
 
     .modal-close-btn:hover {
@@ -368,10 +391,33 @@
     .modal-body {
       padding: 20px 22px;
       overflow-y: auto;
-      flex: 1;
+      overflow-x: hidden;
+      flex: 1 1 auto;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       gap: 18px;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--card-border) transparent;
+    }
+
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+      background: var(--card-border);
+      border-radius: 9999px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+      background: var(--text-dim);
     }
 
     .modal-summary-grid {
@@ -551,6 +597,9 @@
       background: var(--card-bg-elevated);
       flex-wrap: wrap;
       gap: 10px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
     }
 
     .modal-footer-info {
@@ -1047,6 +1096,26 @@
         flex: 1;
         justify-content: center;
       }
+      .modal-backdrop {
+        padding: 8px;
+      }
+      .modal-dialog {
+        max-height: 94vh;
+        border-radius: 12px;
+      }
+      .modal-header {
+        padding: 12px 14px;
+      }
+      .modal-body {
+        padding: 14px 14px;
+        gap: 14px;
+      }
+      .modal-footer {
+        padding: 10px 14px;
+      }
+      .modal-summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
 </head>
@@ -1300,7 +1369,7 @@
 
   <!-- Macro History Modal Dialog -->
   <div class="modal-backdrop" id="historyModalBackdrop" onclick="handleModalBackdropClick(event)">
-    <div class="modal-dialog" id="historyModalDialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog" id="historyModalDialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle" onclick="event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <div class="modal-icon-badge" id="modalIcon">📊</div>
@@ -1309,10 +1378,10 @@
             <p id="modalSubtitle">Data historis, perbandingan perkiraan vs aktual, dan dampak pasar</p>
           </div>
         </div>
-        <button class="modal-close-btn" onclick="closeHistoryModal()" title="Tutup (Esc)">✕</button>
+        <button type="button" class="modal-close-btn" id="modalCloseBtn" onclick="closeHistoryModal(event)" title="Tutup (Esc)">✕</button>
       </div>
 
-      <div class="modal-body">
+      <div class="modal-body" id="historyModalBody">
         <!-- Visual KPI Highlights -->
         <div class="modal-summary-grid">
           <div class="modal-stat-card">
@@ -1374,11 +1443,11 @@
           Sumber: U.S. Bureau of Labor Statistics & Federal Reserve
         </div>
         <div style="display:flex; gap:8px;">
-          <button onclick="exportHistoryCsv()" class="btn-outline" title="Download data riwayat sebagai file CSV">
+          <button type="button" onclick="exportHistoryCsv()" class="btn-outline" title="Download data riwayat sebagai file CSV">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Ekspor CSV
           </button>
-          <button onclick="closeHistoryModal()" class="btn-action">
+          <button type="button" onclick="closeHistoryModal(event)" class="btn-action" id="modalFooterCloseBtn">
             Tutup
           </button>
         </div>
@@ -1815,8 +1884,13 @@
 
     async function openHistoryModal(category) {
       const backdrop = document.getElementById('historyModalBackdrop');
-      backdrop.classList.add('active');
+      backdrop.classList.add('active', 'open');
       document.body.style.overflow = 'hidden';
+
+      const modalBody = document.getElementById('historyModalBody');
+      if (modalBody) {
+        modalBody.scrollTop = 0;
+      }
 
       // Set temporary loading state
       document.getElementById('modalTitle').textContent = `Memuat Riwayat ${category}...`;
@@ -1936,24 +2010,29 @@
       }).join('');
     }
 
-    function closeHistoryModal() {
+    function closeHistoryModal(event) {
+      if (event && typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
       const backdrop = document.getElementById('historyModalBackdrop');
-      backdrop.classList.remove('active');
+      if (backdrop) {
+        backdrop.classList.remove('active', 'open');
+      }
       document.body.style.overflow = '';
     }
 
     function handleModalBackdropClick(event) {
-      if (event.target.id === 'historyModalBackdrop') {
-        closeHistoryModal();
+      if (event && event.target && event.target.id === 'historyModalBackdrop') {
+        closeHistoryModal(event);
       }
     }
 
     // Keyboard listener for Escape key
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' || e.key === 'Esc') {
         const backdrop = document.getElementById('historyModalBackdrop');
-        if (backdrop && backdrop.classList.contains('active')) {
-          closeHistoryModal();
+        if (backdrop && (backdrop.classList.contains('active') || backdrop.classList.contains('open'))) {
+          closeHistoryModal(e);
         }
       }
     });
@@ -1993,6 +2072,16 @@
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
       loadMacroData();
+
+      // Bind close button listeners
+      const closeBtn = document.getElementById('modalCloseBtn');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => closeHistoryModal(e));
+      }
+      const footerCloseBtn = document.getElementById('modalFooterCloseBtn');
+      if (footerCloseBtn) {
+        footerCloseBtn.addEventListener('click', (e) => closeHistoryModal(e));
+      }
     });
   </script>
 </body>

@@ -588,3 +588,4 @@ export const MACRO_HISTORY_DATA: Record<'CPI' | 'PPI' | 'FOMC' | 'NFP', MacroInd
     ],
   },
 };
+

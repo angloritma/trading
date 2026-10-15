@@ -408,7 +408,8 @@ select.custom-select:focus, select.custom-input:focus, input.custom-input:focus 
   transition: opacity 0.2s ease;
 }
 
-.modal-backdrop.open {
+.modal-backdrop.open,
+.modal-backdrop.active {
   opacity: 1;
   pointer-events: auto;
 }
