@@ -1,72 +1,89 @@
 /* ==========================================================================
-   Angloritma Design System - Common CSS Tokens & Styles
+   Angloritma Design System - TabSquare.ai Inspired Theme & Tokens
    ========================================================================== */
 
 :root {
-  /* Dark Theme (Default) */
-  --bg: #090d16;
-  --bg-secondary: #0d1322;
-  --card-bg: #111827;
-  --card-bg-elevated: #161f33;
-  --card-border: #1f2937;
-  --card-border-subtle: #1e283d;
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  --text-dim: #6b7280;
-  
+  /* Dark Theme (TabSquare Sleek Dark Palette) */
+  --bg: #0c0d10;
+  --bg-secondary: #121317;
+  --card-bg: #18191e;
+  --card-bg-elevated: #1e2026;
+  --card-border: #2a2b34;
+  --card-border-subtle: #21232b;
+  --text-main: #f5f5f7;
+  --text-muted: #9da1aa;
+  --text-dim: #6b707d;
+
+  /* TabSquare Signature Brand Colors */
+  --primary: #ff6b00;
+  --primary-hover: #e55f00;
+  --primary-glow: rgba(255, 107, 0, 0.25);
+  --brand-gradient: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%);
+  --brand-gradient-subtle: linear-gradient(135deg, rgba(255, 107, 0, 0.12) 0%, rgba(255, 170, 0, 0.05) 100%);
+
+  /* Trading & Financial Indicators */
   --green: #10b981;
   --green-glow: rgba(16, 185, 129, 0.2);
   --red: #ef4444;
   --red-glow: rgba(239, 68, 68, 0.2);
-  --blue: #3b82f6;
-  --blue-glow: rgba(59, 130, 246, 0.25);
-  --yellow: #facc15;
+  --yellow: #ffaa00;
   --cyan: #06b6d4;
-  --orange: #f97316;
+  --orange: #ff6b00;
+  --blue: #ff6b00; /* Primary brand accent mapped to TabSquare Orange */
+  --blue-glow: rgba(255, 107, 0, 0.25);
 
-  --btn-bg: #1f2937;
-  --btn-border: #374151;
-  --btn-active-bg: #374151;
-  --input-bg: #131b2e;
-  --header-bg: rgba(13, 19, 34, 0.88);
-  --overlay-bg: rgba(9, 13, 22, 0.7);
+  --btn-bg: #1e2026;
+  --btn-border: #2e303c;
+  --btn-active-bg: #282a35;
+  --input-bg: #131418;
+  --header-bg: rgba(12, 13, 16, 0.90);
+  --overlay-bg: rgba(12, 13, 16, 0.80);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55);
 }
 
 html.light {
-  --bg: #f8fafc;
-  --bg-secondary: #f1f5f9;
+  /* Light Theme (TabSquare Warm Cream Stone Palette) */
+  --bg: #f5f3ef;
+  --bg-secondary: #edeae3;
   --card-bg: #ffffff;
-  --card-bg-elevated: #ffffff;
-  --card-border: #e2e8f0;
-  --card-border-subtle: #edf2f7;
-  --text-main: #0f172a;
-  --text-muted: #475569;
-  --text-dim: #64748b;
+  --card-bg-elevated: #faf9f6;
+  --card-border: #e2ded6;
+  --card-border-subtle: #eae6de;
+  --text-main: #141312;
+  --text-muted: #57534e;
+  --text-dim: #78716c;
 
+  /* TabSquare Signature Brand Colors */
+  --primary: #ff6b00;
+  --primary-hover: #e55f00;
+  --primary-glow: rgba(255, 107, 0, 0.2);
+  --brand-gradient: linear-gradient(135deg, #ff6b00 0%, #ffaa00 100%);
+  --brand-gradient-subtle: linear-gradient(135deg, rgba(255, 107, 0, 0.08) 0%, rgba(255, 170, 0, 0.04) 100%);
+
+  /* Trading & Financial Indicators */
   --green: #059669;
   --green-glow: rgba(5, 150, 105, 0.15);
   --red: #dc2626;
   --red-glow: rgba(220, 38, 38, 0.15);
-  --blue: #2563eb;
-  --blue-glow: rgba(37, 99, 235, 0.2);
-  --yellow: #b45309;
+  --yellow: #d97706;
   --cyan: #0891b2;
-  --orange: #ea580c;
+  --orange: #ff6b00;
+  --blue: #ff6b00; /* TabSquare Orange Accent */
+  --blue-glow: rgba(255, 107, 0, 0.2);
 
-  --btn-bg: #f1f5f9;
-  --btn-border: #cbd5e1;
-  --btn-active-bg: #e2e8f0;
+  --btn-bg: #edeae3;
+  --btn-border: #dcd6cb;
+  --btn-active-bg: #e2ded6;
   --input-bg: #ffffff;
-  --header-bg: rgba(255, 255, 255, 0.92);
-  --overlay-bg: rgba(255, 255, 255, 0.75);
+  --header-bg: rgba(245, 243, 239, 0.94);
+  --overlay-bg: rgba(245, 243, 239, 0.82);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.12);
 }
 
 /* Base Styles */
@@ -119,14 +136,14 @@ header {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2563eb, #10b981);
+  background: linear-gradient(135deg, #ff6b00, #ffaa00);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
   font-size: 18px;
   color: white;
-  box-shadow: 0 0 16px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 0 16px rgba(255, 107, 0, 0.4);
   flex-shrink: 0;
 }
 
@@ -148,9 +165,9 @@ header {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--green);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(255, 107, 0, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(255, 107, 0, 0.28);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -183,10 +200,10 @@ nav.app-nav {
 }
 
 .nav-link.active {
-  background: var(--blue);
+  background: var(--primary);
   color: #ffffff;
-  border-color: var(--blue);
-  box-shadow: 0 2px 8px var(--blue-glow);
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
 /* Common Buttons & Inputs */
@@ -211,9 +228,9 @@ nav.app-nav {
 }
 
 .btn-pill.active {
-  background: var(--blue);
+  background: var(--primary);
   color: #ffffff;
-  box-shadow: 0 2px 8px var(--blue-glow);
+  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
 .control-group {
@@ -236,15 +253,16 @@ select.custom-select, select.custom-input, input.custom-input {
   cursor: pointer;
   outline: none;
   font-family: inherit;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 select.custom-select:focus, select.custom-input:focus, input.custom-input:focus {
-  border-color: var(--blue);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
 }
 
 .btn-action {
-  background: var(--blue);
+  background: var(--primary);
   color: white;
   border: none;
   padding: 7px 14px;
@@ -255,11 +273,13 @@ select.custom-select:focus, select.custom-input:focus, input.custom-input:focus 
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px var(--primary-glow);
 }
 
 .btn-action:hover {
-  background: #1d4ed8;
+  background: var(--primary-hover);
+  box-shadow: 0 4px 14px rgba(255, 107, 0, 0.4);
 }
 
 .btn-action:active {
@@ -283,7 +303,7 @@ select.custom-select:focus, select.custom-input:focus, input.custom-input:focus 
 
 .btn-outline:hover {
   background: var(--btn-active-bg);
-  border-color: var(--blue);
+  border-color: var(--primary);
 }
 
 /* Badges and Indicators */
@@ -303,16 +323,16 @@ select.custom-select:focus, select.custom-input:focus, input.custom-input:focus 
   border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
-.badge-pill.blue {
-  background: rgba(59, 130, 246, 0.15);
-  color: var(--blue);
-  border: 1px solid rgba(59, 130, 246, 0.35);
+.badge-pill.blue, .badge-pill.orange, .badge-pill.brand {
+  background: rgba(255, 107, 0, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(255, 107, 0, 0.35);
 }
 
 .badge-pill.yellow {
-  background: rgba(250, 204, 21, 0.15);
+  background: rgba(255, 170, 0, 0.15);
   color: var(--yellow);
-  border: 1px solid rgba(250, 204, 21, 0.35);
+  border: 1px solid rgba(255, 170, 0, 0.35);
 }
 
 .badge-pill.red {
@@ -368,7 +388,7 @@ select.custom-select:focus, select.custom-input:focus, input.custom-input:focus 
 }
 
 .toast.toast-success { border-left: 4px solid var(--green); }
-.toast.toast-info { border-left: 4px solid var(--blue); }
+.toast.toast-info { border-left: 4px solid var(--primary); }
 .toast.toast-warn { border-left: 4px solid var(--yellow); }
 .toast.toast-error { border-left: 4px solid var(--red); }
 
